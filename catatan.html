@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buku Catatan — Tabungan SDN TAMBERU 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebarSlot"></nav>
+  <div class="main">
+    <header class="topbar" id="topbarSlot"></header>
+    <main class="content">
+      <div class="page-head">
+        <h2>Buku Catatan</h2>
+        <p>Catat pinjaman dari tabungan kelas — untuk guru atau siapa saja yang meminjam.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head"><h3>Catat Pinjaman</h3></div>
+          <div class="form-msg" id="formMsg"></div>
+          <form id="formPinjam">
+            <div class="field">
+              <label for="fNamaPeminjam">Nama Peminjam</label>
+              <input type="text" id="fNamaPeminjam" placeholder="Nama yang meminjam" required>
+            </div>
+            <div class="field">
+              <label for="fTanggalPinjam">Tanggal</label>
+              <input type="date" id="fTanggalPinjam" required>
+            </div>
+            <div class="field">
+              <label for="fJumlahPinjam">Jumlah Pinjaman (Rp)</label>
+              <input type="number" id="fJumlahPinjam" min="1" step="1" placeholder="cth. 20000" required>
+            </div>
+            <div class="field">
+              <label for="fKeteranganPinjam">Keperluan <span style="font-weight:400;color:var(--text-muted);">(opsional)</span></label>
+              <input type="text" id="fKeteranganPinjam" placeholder="cth. Beli alat tulis">
+            </div>
+            <button type="submit" class="btn-primary" id="btnSimpanPinjam">Simpan Pinjaman</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Rekap</h3></div>
+          <table class="data-table">
+            <thead><tr><th>Nama</th><th>Sisa Pinjaman</th></tr></thead>
+            <tbody id="tableRekapPinjam">
+              <tr><td colspan="2" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="panel-head"><h3>Riwayat Pinjaman</h3></div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Tanggal</th><th>Nama</th><th>Jumlah</th><th>Dibayar</th><th>Sisa</th><th>Status</th><th>Keterangan</th><th></th></tr></thead>
+            <tbody id="tableRiwayatPinjam">
+              <tr><td colspan="8" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Riwayat Pembayaran (Cicilan)</h3></div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Tanggal Bayar</th><th>Nama</th><th>Dibayar</th><th>Keterangan</th><th>Petugas</th><th></th></tr></thead>
+            <tbody id="tableRiwayatBayar">
+              <tr><td colspan="6" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Form catat pembayaran / cicilan -->
+<div class="modal-backdrop" id="modalBayar" style="display:none;">
+  <div class="modal-box">
+    <h3 style="margin:0 0 4px;">Catat Pembayaran / Cicilan</h3>
+    <p style="margin:0 0 14px; font-size:12.5px; color:var(--text-muted);" id="bayarInfo"></p>
+    <div class="form-msg" id="bayarMsg"></div>
+    <form id="formBayar">
+      <div class="field">
+        <label for="fTanggalBayar">Tanggal Bayar</label>
+        <input type="date" id="fTanggalBayar" required>
+      </div>
+      <div class="field">
+        <label for="fJumlahBayar">Jumlah Dibayar (Rp)</label>
+        <input type="number" id="fJumlahBayar" min="1" step="1" required>
+      </div>
+      <div class="field">
+        <label for="fKeteranganBayar">Keterangan <span style="font-weight:400;color:var(--text-muted);">(opsional)</span></label>
+        <input type="text" id="fKeteranganBayar" placeholder="cth. Cicilan ke-2">
+      </div>
+      <button type="submit" class="btn-primary" id="btnSimpanBayar">Simpan Pembayaran</button>
+      <button type="button" class="link-btn" id="btnBatalBayar" style="margin-top:12px;">Batal</button>
+    </form>
+  </div>
+</div>
+
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/catatan.js"></script>
+<script>initLayout("catatan", "Buku Catatan").then(() => initCatatanPage());</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transaksi — Tabungan SDN TAMBERU 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebarSlot"></nav>
+  <div class="main">
+    <header class="topbar" id="topbarSlot"></header>
+    <main class="content">
+      <div class="page-head no-print">
+        <h2>Transaksi</h2>
+        <p>Buku kas: semua uang masuk dan keluar — setoran, penarikan, pinjaman, dan cicilan.</p>
+      </div>
+
+      <div class="form-msg form-msg-error no-print" id="peringatanT" style="display:none;"></div>
+
+      <!-- Penyaring -->
+      <div class="panel no-print" style="margin-bottom:16px;">
+        <div class="filter-row">
+          <div class="field">
+            <label for="fJenisT">Jenis</label>
+            <select id="fJenisT">
+              <option value="">Semua Jenis</option>
+              <option value="setor">Setoran (masuk)</option>
+              <option value="cicilan">Cicilan (masuk)</option>
+              <option value="tarik">Penarikan (keluar)</option>
+              <option value="pinjam">Pinjaman (keluar)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fDariT">Dari tanggal</label>
+            <input type="date" id="fDariT">
+          </div>
+          <div class="field">
+            <label for="fSampaiT">Sampai tanggal</label>
+            <input type="date" id="fSampaiT">
+          </div>
+          <div class="field">
+            <label for="fCariT">Cari</label>
+            <input type="text" id="fCariT" placeholder="Nama / keterangan / petugas">
+          </div>
+        </div>
+
+        <div class="seg" id="segRentang">
+          <button type="button" class="seg-btn active" data-r="semua">Semua</button>
+          <button type="button" class="seg-btn" data-r="hari">Hari Ini</button>
+          <button type="button" class="seg-btn" data-r="minggu">Minggu Ini</button>
+          <button type="button" class="seg-btn" data-r="bulan">Bulan Ini</button>
+        </div>
+
+        <div class="filter-actions">
+          <label class="chk"><input type="checkbox" id="chkTerbaruT" checked> Terbaru di atas</label>
+          <span style="flex:1;"></span>
+          <a class="btn-small" href="tabungan.html">➕ Catat Tabungan</a>
+          <a class="btn-small" href="catatan.html">➕ Catat Pinjaman</a>
+          <button type="button" class="btn-small" id="btnCetakT">🖨️ Cetak</button>
+          <button type="button" class="btn-small" id="btnCsvT">⬇️ Unduh Excel (CSV)</button>
+        </div>
+      </div>
+
+      <div class="print-only" id="printHeaderT"></div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-tabungan.png" alt=""></div><div class="stat-label">Saldo Kas Saat Ini</div></div>
+          <div class="stat-value" id="trxSaldoKas">Rp 0</div>
+          <div class="stat-sub">Setoran − penarikan − pinjaman + cicilan</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-transaksi.png" alt=""></div><div class="stat-label">Uang Masuk</div></div>
+          <div class="stat-value amt-in" id="trxMasuk">Rp 0</div>
+          <div class="stat-sub" id="trxMasukSub">0 setoran · 0 cicilan</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-catatan.png" alt=""></div><div class="stat-label">Uang Keluar</div></div>
+          <div class="stat-value amt-out" id="trxKeluar">Rp 0</div>
+          <div class="stat-sub" id="trxKeluarSub">0 penarikan · 0 pinjaman</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-laporan.png" alt=""></div><div class="stat-label">Selisih</div></div>
+          <div class="stat-value" id="trxSelisih">Rp 0</div>
+          <div class="stat-sub" id="trxSelisihSub">0 transaksi</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Riwayat Transaksi</h3></div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr><th>Tanggal</th><th>Jenis</th><th>Nama</th><th>Keterangan</th><th>Masuk</th><th>Keluar</th><th>Saldo Kas</th><th>Petugas</th></tr>
+            </thead>
+            <tbody id="tbodyT">
+              <tr><td colspan="8" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
+            </tbody>
+            <tfoot id="tfootT"></tfoot>
+          </table>
+        </div>
+        <p class="no-print" id="wrapLagi" style="text-align:center; margin:14px 0 0; display:none;">
+          <button type="button" class="btn-small" id="btnLagi">Tampilkan lebih banyak</button>
+        </p>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/transaksi.js"></script>
+<script>initLayout("transaksi", "Transaksi").then(() => initTransaksiPage());</script>
+</body>
+</html>

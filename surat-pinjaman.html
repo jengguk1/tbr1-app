@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Surat Pernyataan Peminjaman Tabungan</title>
+<style>
+  :root { --ink:#111; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #dfe4ee; font-family: "Times New Roman", Times, serif;
+    color: var(--ink); padding: 24px 12px 60px;
+  }
+  .toolbar {
+    max-width: 800px; margin: 0 auto 16px; display: flex; gap: 10px; justify-content: flex-end;
+  }
+  .toolbar button {
+    font-family: -apple-system, Segoe UI, Roboto, sans-serif; font-size: 13px; font-weight: 600;
+    padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer;
+  }
+  .btn-print { background: #2e7cf6; color: #fff; }
+  .btn-close { background: #e6ebf5; color: #333; }
+
+  .kertas {
+    max-width: 800px; margin: 0 auto; background: #fff; padding: 40px 55px 60px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.18); min-height: 1000px;
+  }
+  .kop { text-align: center; border-bottom: 3px double #111; padding-bottom: 10px; margin-bottom: 26px; }
+  .kop h1 { margin: 0; font-size: 20px; letter-spacing: .5px; }
+  .kop p { margin: 2px 0 0; font-size: 13px; }
+
+  .judul { text-align: center; margin-bottom: 6px; }
+  .judul h2 { margin: 0; font-size: 16px; text-decoration: underline; letter-spacing: .5px; }
+
+  .isi { font-size: 14.5px; line-height: 1.8; margin-top: 22px; }
+  .data-diri { margin: 14px 0; width: 100%; }
+  .data-diri td { padding: 2px 6px; vertical-align: top; font-size: 14.5px; }
+  .data-diri td.label { width: 160px; }
+
+  .kotak-jumlah { text-align: center; margin: 20px 0; }
+  .kotak-jumlah .angka { font-size: 20px; font-weight: bold; }
+  .kotak-jumlah .terbilang { font-style: italic; font-size: 13.5px; margin-top: 4px; }
+
+  .ttd-wrap { display: flex; justify-content: space-between; margin-top: 55px; }
+  .ttd-block { width: 45%; text-align: center; font-size: 14px; }
+  .ttd-space { height: 70px; }
+  .ttd-line { border-top: 1px solid #111; padding-top: 4px; font-weight: bold; }
+
+  .tempat-tanggal { text-align: right; font-size: 14px; margin-top: 30px; }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .toolbar { display: none; }
+    .kertas { box-shadow: none; margin: 0; max-width: none; padding: 10mm 15mm; min-height: auto; }
+    @page { size: A4; margin: 12mm; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <button class="btn-close" onclick="window.close()">Tutup</button>
+    <button class="btn-print" onclick="window.print()">🖨️ Cetak</button>
+  </div>
+
+  <div class="kertas" id="kertas">
+    <div class="kop">
+      <h1>SDN TAMBERU 1</h1>
+      <p>Kecamatan Batumarmar — Kabupaten Pamekasan, Jawa Timur</p>
+    </div>
+
+    <div class="judul">
+      <h2>SURAT PERNYATAAN PEMINJAMAN TABUNGAN KELAS</h2>
+    </div>
+
+    <div class="isi">
+      <p>Yang bertanda tangan di bawah ini:</p>
+      <table class="data-diri">
+        <tr><td class="label">Nama</td><td>: <span id="outNama">-</span></td></tr>
+      </table>
+
+      <p>Dengan ini menyatakan telah meminjam uang dari tabungan kelas dengan rincian sebagai berikut:</p>
+
+      <div class="kotak-jumlah">
+        <div class="angka">Rp <span id="outJumlah">0</span></div>
+        <div class="terbilang">Terbilang: <span id="outTerbilang">-</span> rupiah</div>
+      </div>
+
+      <table class="data-diri">
+        <tr><td class="label">Tanggal Pinjam</td><td>: <span id="outTanggal">-</span></td></tr>
+        <tr><td class="label">Keperluan</td><td>: <span id="outKeterangan">-</span></td></tr>
+      </table>
+
+      <p>
+        Saya yang bertanda tangan di atas berjanji akan mengembalikan/melunasi pinjaman tersebut
+        sesuai kesepakatan bersama wali kelas, dan bersedia apabila pinjaman ini dipotongkan dari
+        tabungan saya berikutnya bila belum dilunasi.
+      </p>
+      <p>Demikian surat pernyataan ini saya buat dengan sebenar-benarnya untuk dipergunakan sebagaimana mestinya.</p>
+    </div>
+
+    <div class="tempat-tanggal">Batumarmar, <span id="outTanggalSurat">-</span></div>
+
+    <div class="ttd-wrap">
+      <div class="ttd-block">
+        Yang Meminjam
+        <div class="ttd-space"></div>
+        <div class="ttd-line" id="outNama2">-</div>
+      </div>
+      <div class="ttd-block">
+        Yang Memberi Pinjaman
+        <div class="ttd-space"></div>
+        <div class="ttd-line" id="outPetugas">-</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  function terbilang(n) {
+    n = Math.floor(Math.abs(Number(n) || 0));
+    const satuan = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan",
+      "sepuluh", "sebelas"];
+    function sub(x) {
+      if (x < 12) return satuan[x];
+      if (x < 20) return sub(x - 10) + " belas";
+      if (x < 100) return sub(Math.floor(x / 10)) + " puluh" + (x % 10 ? " " + sub(x % 10) : "");
+      if (x < 200) return "seratus" + (x % 100 ? " " + sub(x % 100) : "");
+      if (x < 1000) return sub(Math.floor(x / 100)) + " ratus" + (x % 100 ? " " + sub(x % 100) : "");
+      if (x < 2000) return "seribu" + (x % 1000 ? " " + sub(x % 1000) : "");
+      if (x < 1000000) return sub(Math.floor(x / 1000)) + " ribu" + (x % 1000 ? " " + sub(x % 1000) : "");
+      if (x < 1000000000) return sub(Math.floor(x / 1000000)) + " juta" + (x % 1000000 ? " " + sub(x % 1000000) : "");
+      return sub(Math.floor(x / 1000000000)) + " miliar" + (x % 1000000000 ? " " + sub(x % 1000000000) : "");
+    }
+    if (n === 0) return "nol";
+    return sub(n).replace(/\s+/g, " ").trim();
+  }
+
+  function formatRp(n) {
+    return Number(n || 0).toLocaleString("id-ID");
+  }
+
+  function tanggalPanjang(iso) {
+    if (!iso) return "-";
+    const d = new Date(iso);
+    return d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+  }
+
+  const raw = sessionStorage.getItem("suratPinjamanData");
+  if (!raw) {
+    document.getElementById("kertas").innerHTML =
+      '<p style="text-align:center; font-family:sans-serif; padding:60px 0;">' +
+      'Data pinjaman tidak ditemukan. Buka surat ini lewat tombol "Cetak Surat" ' +
+      'pada halaman Buku Catatan.</p>';
+  } else {
+    const d = JSON.parse(raw);
+    document.getElementById("outNama").textContent = d.nama;
+    document.getElementById("outNama2").textContent = d.nama;
+    document.getElementById("outJumlah").textContent = formatRp(d.jumlah);
+    document.getElementById("outTerbilang").textContent = terbilang(d.jumlah);
+    document.getElementById("outTanggal").textContent = tanggalPanjang(d.tanggal);
+    document.getElementById("outKeterangan").textContent = d.keterangan || "-";
+    document.getElementById("outTanggalSurat").textContent = tanggalPanjang(d.tanggal);
+    document.getElementById("outPetugas").textContent = d.petugas || "-";
+  }
+</script>
+</body>
+</html>

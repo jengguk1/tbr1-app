@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Masuk — Tabungan SDN TAMBERU 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <img src="assets/img/icon-tabungan.png" alt="" style="width:64px;height:64px;display:block;margin:0 auto 14px;">
+      <h1>Tabungan SDN TAMBERU 1</h1>
+      <p class="sub">Kecamatan Batumarmar — Kabupaten Pamekasan</p>
+
+      <div class="login-error" id="loginError">Email atau kata sandi salah.</div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="admin@tamberu1.sch.id" required>
+        </div>
+        <div class="field">
+          <label for="password">Kata Sandi</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-primary" id="loginBtn">Masuk</button>
+      </form>
+      <p style="text-align:center; margin-top:14px;">
+        <button type="button" id="linkLupaPass" class="link-btn">Lupa password?</button>
+      </p>
+
+      <div id="lupaPassBox" style="display:none; margin-top:10px; border-top:1px solid var(--border); padding-top:14px;">
+        <div class="form-msg" id="lupaMsg"></div>
+        <div class="field">
+          <label for="emailLupa">Email akun Anda</label>
+          <input type="email" id="emailLupa" placeholder="nama@tamberu1.sch.id">
+        </div>
+        <button type="button" class="btn-primary" id="btnKirimReset">Kirim Link Reset Password</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/supabase-client.js"></script>
+  <script>
+    // Kalau sudah login, langsung lempar ke dashboard
+    window.db.auth.getSession().then(({ data: { session } }) => {
+      if (session) window.location.href = "dashboard.html";
+    });
+
+    const form = document.getElementById("loginForm");
+    const errorBox = document.getElementById("loginError");
+    const btn = document.getElementById("loginBtn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorBox.style.display = "none";
+      btn.disabled = true;
+      btn.textContent = "Memeriksa...";
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      const { error } = await window.db.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        errorBox.textContent = "Gagal masuk: " + error.message;
+        errorBox.style.display = "block";
+        btn.disabled = false;
+        btn.textContent = "Masuk";
+      } else {
+        window.location.href = "dashboard.html";
+      }
+    });
+
+    // ---------- Lupa password ----------
+    const lupaBox = document.getElementById("lupaPassBox");
+    const lupaMsg = document.getElementById("lupaMsg");
+    function showLupaMsg(text, type) {
+      lupaMsg.textContent = text;
+      lupaMsg.className = "form-msg" + (type ? " form-msg-" + type : "");
+      lupaMsg.style.display = text ? "block" : "none";
+    }
+
+    document.getElementById("linkLupaPass").addEventListener("click", () => {
+      lupaBox.style.display = lupaBox.style.display === "none" ? "block" : "none";
+    });
+
+    document.getElementById("btnKirimReset").addEventListener("click", async () => {
+      const email = document.getElementById("emailLupa").value.trim();
+      showLupaMsg("", null);
+      if (!email) { showLupaMsg("Isi email akun Anda dulu.", "error"); return; }
+
+      const kirimBtn = document.getElementById("btnKirimReset");
+      kirimBtn.disabled = true;
+      kirimBtn.textContent = "Mengirim...";
+      try {
+        const { error } = await window.db.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password.html`
+        });
+        if (error) throw error;
+        showLupaMsg("Kalau email tersebut terdaftar, link reset password sudah dikirim. Silakan cek email Anda.", "success");
+      } catch (err) {
+        showLupaMsg("Gagal mengirim: " + (err.message || err), "error");
+      } finally {
+        kirimBtn.disabled = false;
+        kirimBtn.textContent = "Kirim Link Reset Password";
+      }
+    });
+  </script>
+</body>
+</html>

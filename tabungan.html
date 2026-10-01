@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tabungan — Tabungan SDN TAMBERU 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebarSlot"></nav>
+  <div class="main">
+    <header class="topbar" id="topbarSlot"></header>
+    <main class="content">
+      <div class="page-head">
+        <h2>Tabungan</h2>
+        <p>Catat setoran dan penarikan tabungan siswa.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head"><h3>Catat Tabungan</h3></div>
+          <div class="form-msg" id="formMsg"></div>
+          <form id="formTabungan">
+            <div class="field">
+              <label for="fSiswa">Siswa</label>
+              <select id="fSiswa" required>
+                <option value="" disabled selected>Memuat daftar siswa...</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fJenis">Jenis</label>
+              <select id="fJenis" required>
+                <option value="setor">Setor</option>
+                <option value="tarik">Tarik</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fTanggal">Tanggal</label>
+              <input type="date" id="fTanggal" required>
+            </div>
+            <div class="field">
+              <label for="fJumlah">Jumlah (Rp)</label>
+              <input type="number" id="fJumlah" min="1" step="1" placeholder="cth. 10000" required>
+            </div>
+            <div class="field">
+              <label for="fKeterangan">Keterangan <span style="font-weight:400;color:var(--text-muted);">(opsional)</span></label>
+              <input type="text" id="fKeterangan" placeholder="cth. Setoran mingguan">
+            </div>
+            <button type="submit" class="btn-primary" id="btnSimpanTabungan">Simpan Transaksi</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Saldo per Siswa</h3>
+            <select id="filterKelasSaldo" style="display:none; width:auto; padding:6px 10px; border-radius:8px; border:1px solid var(--border); font-size:12.5px;">
+              <option value="">Semua Kelas</option>
+              <option>Kelas I</option><option>Kelas II</option><option>Kelas III</option>
+              <option>Kelas IV</option><option>Kelas V</option><option>Kelas VI</option>
+            </select>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Nama</th><th>Kelas</th><th>Saldo</th></tr></thead>
+            <tbody id="tableSaldo">
+              <tr><td colspan="3" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Riwayat Transaksi Tabungan</h3></div>
+        <table class="data-table">
+          <thead><tr><th>Tanggal</th><th>Nama</th><th>Kelas</th><th>Jenis</th><th>Jumlah</th><th>Keterangan</th><th>Petugas</th><th></th></tr></thead>
+          <tbody id="tableRiwayat">
+            <tr><td colspan="8" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/tabungan.js"></script>
+<script>initLayout("tabungan", "Tabungan").then(() => initTabunganPage());</script>
+</body>
+</html>

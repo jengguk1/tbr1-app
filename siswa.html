@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Siswa — Tabungan SDN TAMBERU 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebarSlot"></nav>
+  <div class="main">
+    <header class="topbar" id="topbarSlot"></header>
+    <main class="content">
+      <div class="page-head">
+        <h2>Data Siswa</h2>
+        <p>Kelola data siswa: tambah, ubah, dan lihat daftar siswa aktif.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head"><h3 id="formSiswaTitle">Tambah Siswa</h3></div>
+          <div class="form-msg" id="formMsg"></div>
+          <form id="formSiswa">
+            <div class="field">
+              <label for="fNamaSiswa">Nama</label>
+              <input type="text" id="fNamaSiswa" placeholder="Nama lengkap siswa" required>
+            </div>
+            <div class="field">
+              <label for="fNisn">NISN <span style="font-weight:400;color:var(--text-muted);">(opsional)</span></label>
+              <input type="text" id="fNisn" placeholder="Nomor Induk Siswa Nasional">
+            </div>
+            <div class="field">
+              <label for="fKelasSiswa">Kelas</label>
+              <select id="fKelasSiswa" required>
+                <option value="" disabled selected>Pilih kelas</option>
+                <option>Kelas I</option>
+                <option>Kelas II</option>
+                <option>Kelas III</option>
+                <option>Kelas IV</option>
+                <option>Kelas V</option>
+                <option>Kelas VI</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fJk">Jenis Kelamin</label>
+              <select id="fJk" required>
+                <option value="" disabled selected>Pilih</option>
+                <option value="L">Laki-laki</option>
+                <option value="P">Perempuan</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fAlamat">Alamat <span style="font-weight:400;color:var(--text-muted);">(opsional)</span></label>
+              <input type="text" id="fAlamat" placeholder="Alamat rumah">
+            </div>
+            <div class="field" style="display:flex; align-items:center; gap:8px;">
+              <input type="checkbox" id="fAktifSiswa" checked style="width:auto;">
+              <label for="fAktifSiswa" style="margin:0;">Siswa aktif</label>
+            </div>
+            <button type="submit" class="btn-primary" id="btnSimpanSiswa">Simpan Siswa</button>
+            <button type="button" class="link-btn" id="btnBatalEdit" style="display:none; margin-top:10px;">Batal ubah data</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Daftar Siswa</h3>
+            <select id="filterKelas" style="display:none; width:auto; padding:6px 10px; border-radius:8px; border:1px solid var(--border); font-size:12.5px;">
+              <option value="">Semua Kelas</option>
+              <option>Kelas I</option>
+              <option>Kelas II</option>
+              <option>Kelas III</option>
+              <option>Kelas IV</option>
+              <option>Kelas V</option>
+              <option>Kelas VI</option>
+            </select>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Nama</th><th>Kelas</th><th>L/P</th><th>Status</th><th></th></tr></thead>
+            <tbody id="tableSiswa">
+              <tr><td colspan="5" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/siswa.js"></script>
+<script>initLayout("siswa", "Data Siswa").then(() => initSiswaPage());</script>
+</body>
+</html>

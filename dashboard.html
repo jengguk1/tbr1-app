@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beranda — Tabungan SDN TAMBERU 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebarSlot"></nav>
+
+  <div class="main">
+    <header class="topbar" id="topbarSlot"></header>
+
+    <main class="content">
+      <div class="page-head">
+        <h2>Dashboard</h2>
+        <p>Selamat datang di aplikasi Tabungan SDN TAMBERU 1</p>
+      </div>
+
+      <!-- Kartu ringkasan -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-tabungan.png" alt=""></div><div class="stat-label">Total Tabungan</div></div>
+          <div class="stat-value" id="statTabungan">Rp 0</div>
+          <div class="stat-sub" id="statTabunganSub">Dari 0 siswa aktif</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-hutang.png" alt=""></div><div class="stat-label">Total Hutang</div></div>
+          <div class="stat-value" id="statHutang">Rp 0</div>
+          <div class="stat-sub" id="statHutangSub">Dari 0 siswa</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-siswa.png" alt=""></div><div class="stat-label">Jumlah Siswa Aktif</div></div>
+          <div class="stat-value" id="statSiswa">0</div>
+          <div class="stat-sub" id="statSiswaSub">Dari 0 siswa</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-transaksi.png" alt=""></div><div class="stat-label">Total Transaksi</div></div>
+          <div class="stat-value" id="statTransaksi">0</div>
+          <div class="stat-sub">Bulan ini</div>
+        </div>
+      </div>
+
+      <!-- Grafik + Rekap -->
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head"><h3>Grafik Tabungan & Hutang</h3></div>
+          <canvas id="chartBar" height="140"></canvas>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Rekap Saldo</h3></div>
+          <div class="saldo-kas-box">
+            <div class="saldo-kas-label">💰 Saldo Kas yang Ada Sekarang</div>
+            <div class="saldo-kas-value" id="statSaldoKas">Rp 0</div>
+            <div class="saldo-kas-sub" id="statSaldoKasSub">Tabungan dikurangi pinjaman yang belum kembali</div>
+          </div>
+          <canvas id="chartDonut" height="160"></canvas>
+        </div>
+      </div>
+
+      <!-- Transaksi terbaru + Aksi cepat/hutang -->
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head"><h3>Transaksi Terbaru</h3><a href="transaksi.html">Lihat Semua</a></div>
+          <table class="data-table">
+            <thead><tr><th>Tanggal</th><th>Nama</th><th>Jenis</th><th>Keterangan</th><th>Jumlah</th></tr></thead>
+            <tbody id="tableTransaksi">
+              <tr><td colspan="5" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <div class="panel" style="margin-bottom:16px;">
+            <div class="panel-head-img"><img src="assets/img/ribbon-aksicepat.png" alt="Aksi Cepat"></div>
+            <div class="quick-grid">
+              <a class="quick-btn-img" href="tabungan.html"><img src="assets/img/btn-tambah-tabungan.png" alt="Tambah Tabungan"></a>
+              <a class="quick-btn-img" href="catatan.html"><img src="assets/img/btn-tambah-catatan.png" alt="Tambah Catatan"></a>
+              <a class="quick-btn-img" href="transaksi.html"><img src="assets/img/btn-catat-transaksi.png" alt="Catatan Transaksi"></a>
+              <a class="quick-btn-img" href="laporan.html"><img src="assets/img/btn-lihat-laporan.png" alt="Lihat Laporan"></a>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>Buku Catatan Hutang</h3><a href="catatan.html">Lihat Semua</a></div>
+            <table class="data-table">
+              <thead><tr><th>Nama</th><th>Jumlah</th><th>Status</th></tr></thead>
+              <tbody id="tableHutang">
+                <tr><td colspan="3" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/dashboard.js"></script>
+</body>
+</html>

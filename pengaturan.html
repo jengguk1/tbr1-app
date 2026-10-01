@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pengaturan — Tabungan SDN TAMBERU 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebarSlot"></nav>
+  <div class="main">
+    <header class="topbar" id="topbarSlot"></header>
+    <main class="content">
+      <div class="page-head">
+        <h2>Pengaturan</h2>
+        <p>Profil akun dan kelola pengguna aplikasi.</p>
+      </div>
+
+      <!-- Selalu tampil untuk semua akun (admin maupun guru) -->
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="panel">
+          <div class="panel-head"><h3>Profil Saya</h3></div>
+          <table class="data-table" style="margin-bottom:4px;">
+            <tbody>
+              <tr><td style="color:var(--text-muted); width:110px;">Nama</td><td id="pNama">-</td></tr>
+              <tr><td style="color:var(--text-muted);">Email</td><td id="pEmail">-</td></tr>
+              <tr><td style="color:var(--text-muted);">Kelas</td><td id="pKelas">-</td></tr>
+              <tr><td style="color:var(--text-muted);">Peran</td><td id="pRole">-</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Ubah Password Saya</h3></div>
+          <div class="form-msg" id="profileMsg"></div>
+          <form id="formProfilePass">
+            <div class="field">
+              <label for="pPass1">Password Baru</label>
+              <div class="pass-wrap">
+                <input type="password" id="pPass1" placeholder="Minimal 6 karakter" minlength="6" required>
+                <button type="button" class="pass-toggle" data-target="pPass1">👁</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="pPass2">Ulangi Password Baru</label>
+              <div class="pass-wrap">
+                <input type="password" id="pPass2" placeholder="Ketik ulang password baru" minlength="6" required>
+                <button type="button" class="pass-toggle" data-target="pPass2">👁</button>
+              </div>
+            </div>
+            <button type="submit" class="btn-primary" id="btnUbahPassSendiri">Ubah Password</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Ditampilkan kalau yang login BUKAN admin -->
+      <div class="panel" id="bukanAdminBox" style="display:none;">
+        <div class="empty-state">
+          <div class="ei">🔒</div>
+          <h3>Khusus Admin</h3>
+          <p>Hanya akun admin yang bisa menambah atau mengelola akun pengguna lain.</p>
+        </div>
+      </div>
+
+      <!-- Ditampilkan kalau yang login ADALAH admin -->
+      <div id="adminBox" style="display:none;">
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head"><h3>Tambah Akun Baru</h3></div>
+            <div class="form-msg" id="formMsg"></div>
+            <form id="formAkun">
+              <div class="field">
+                <label for="fNama">Nama</label>
+                <input type="text" id="fNama" placeholder="Nama lengkap guru" required>
+              </div>
+              <div class="field">
+                <label for="fEmail">Email</label>
+                <input type="email" id="fEmail" placeholder="nama@tamberu1.sch.id" required>
+              </div>
+              <div class="field">
+                <label for="fKelas">Kelas</label>
+                <select id="fKelas" required>
+                  <option value="" disabled selected>Pilih kelas</option>
+                  <option>Kelas I</option>
+                  <option>Kelas II</option>
+                  <option>Kelas III</option>
+                  <option>Kelas IV</option>
+                  <option>Kelas V</option>
+                  <option>Kelas VI</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="fPass">Password</label>
+                <div class="pass-wrap">
+                  <input type="password" id="fPass" placeholder="Minimal 6 karakter" minlength="6" required>
+                  <button type="button" class="pass-toggle" data-target="fPass">👁</button>
+                </div>
+              </div>
+              <div class="field">
+                <label for="fPass2">Ulangi Password</label>
+                <div class="pass-wrap">
+                  <input type="password" id="fPass2" placeholder="Ketik ulang password" minlength="6" required>
+                  <button type="button" class="pass-toggle" data-target="fPass2">👁</button>
+                </div>
+              </div>
+              <button type="submit" class="btn-primary" id="btnSimpanAkun">Simpan Akun</button>
+            </form>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>Daftar Akun</h3></div>
+            <table class="data-table">
+              <thead><tr><th>Nama</th><th>Kelas</th><th>Peran</th><th>Status</th><th></th></tr></thead>
+              <tbody id="tableAkun">
+                <tr><td colspan="5" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
+              </tbody>
+            </table>
+            <p style="font-size:11.5px; color:var(--text-muted); margin-top:10px;">
+              Menonaktifkan akun akan langsung mengunci akses ke semua data (tanpa menghapus login-nya).
+              "Reset Password" mengirim link atur ulang password ke email guru tersebut (guru yang menentukan
+              password barunya sendiri lewat email — admin tidak perlu tahu password lama).
+              Untuk menghapus akun secara permanen, lakukan lewat Supabase Dashboard → Authentication → Users.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/pengaturan.js"></script>
+<script>initLayout("pengaturan", "Pengaturan").then(() => initPengaturanPage());</script>
+</body>
+</html>
