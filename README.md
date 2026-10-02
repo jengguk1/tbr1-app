@@ -1,6 +1,6 @@
 # Tabungan SDN TAMBERU 1
 
-Aplikasi web ringan untuk mengelola tabungan siswa, buku hutang, dan catatan kelas.
+Aplikasi web ringan untuk mengelola tabungan siswa, Total Catatan, dan catatan kelas.
 Dibangun dengan HTML/CSS/JavaScript murni (tanpa framework berat) agar cepat dibuka
 di PC maupun HP, dengan **Supabase** sebagai database & login, dan siap di-hosting
 gratis di **Cloudflare Pages**.
