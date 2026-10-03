@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kwitansi</title>
+<style>
+  :root { --ink:#111; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #dfe4ee; font-family: "Times New Roman", Times, serif; color: var(--ink); padding: 24px 12px 60px; }
+  .toolbar { max-width: 760px; margin: 0 auto 16px; display: flex; gap: 10px; justify-content: flex-end; }
+  .toolbar button { font-family: -apple-system, Segoe UI, Roboto, sans-serif; font-size: 13px; font-weight: 600; padding: 9px 18px; border-radius: 8px; border: none; cursor: pointer; }
+  .btn-print { background: #2e7cf6; color: #fff; }
+  .btn-close { background: #e6ebf5; color: #333; }
+
+  .kertas { max-width: 760px; margin: 0 auto; background: #fff; padding: 36px 48px 50px; box-shadow: 0 6px 24px rgba(0,0,0,.18); }
+  .kop { text-align: center; border-bottom: 3px double #111; padding-bottom: 10px; margin-bottom: 22px; }
+  .kop h1 { margin: 0; font-size: 20px; letter-spacing: .5px; }
+  .kop p { margin: 2px 0 0; font-size: 13px; }
+
+  .judul-wrap { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; }
+  .judul-wrap h2 { margin: 0; font-size: 17px; text-decoration: underline; letter-spacing: .5px; }
+  .no-kwitansi { font-size: 12.5px; text-align: right; }
+
+  table.isi { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  table.isi td { padding: 5px 4px; vertical-align: top; }
+  table.isi td.label { width: 190px; }
+  table.isi td.titik { width: 14px; }
+
+  .kotak-jumlah { text-align: center; background: #f6f8fc; border: 1px solid #d9e1f0; border-radius: 8px; padding: 14px; margin: 18px 0; }
+  .kotak-jumlah .angka { font-size: 22px; font-weight: bold; }
+  .kotak-jumlah .terbilang { font-style: italic; font-size: 13.5px; margin-top: 4px; }
+
+  .ttd-wrap { display: flex; justify-content: space-between; margin-top: 50px; }
+  .ttd-block { width: 45%; text-align: center; font-size: 14px; }
+  .ttd-space { height: 70px; }
+  .ttd-line { border-top: 1px solid #111; padding-top: 4px; font-weight: bold; }
+  .tempat-tanggal { text-align: right; font-size: 14px; margin-top: 26px; }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .toolbar { display: none; }
+    .kertas { box-shadow: none; margin: 0; max-width: none; padding: 10mm 15mm; }
+    @page { size: A4; margin: 12mm; }
+  }
+</style>
+</head>
+<body>
+  <div class="toolbar">
+    <button class="btn-close" onclick="window.close()">Tutup</button>
+    <button class="btn-print" onclick="window.print()">🖨️ Cetak</button>
+  </div>
+
+  <div class="kertas" id="kertas">
+    <div class="kop">
+      <h1>SDN TAMBERU 1</h1>
+      <p>Kecamatan Batumarmar — Kabupaten Pamekasan, Jawa Timur</p>
+    </div>
+
+    <div class="judul-wrap">
+      <h2 id="outJudul">KWITANSI</h2>
+      <div class="no-kwitansi">Tanggal: <span id="outTanggalSingkat">-</span></div>
+    </div>
+
+    <table class="isi">
+      <tr><td class="label">Telah terima dari</td><td class="titik">:</td><td id="outNama">-</td></tr>
+      <tr><td class="label" id="labelKelas">Kelas</td><td class="titik">:</td><td id="outKelas">-</td></tr>
+      <tr><td class="label" id="labelUntuk">Untuk pembayaran</td><td class="titik">:</td><td id="outKeterangan">-</td></tr>
+    </table>
+
+    <div class="kotak-jumlah">
+      <div class="angka">Rp <span id="outJumlah">0</span></div>
+      <div class="terbilang">Terbilang: <span id="outTerbilang">-</span> rupiah</div>
+    </div>
+
+    <div class="tempat-tanggal">Batumarmar, <span id="outTanggalPanjang">-</span></div>
+
+    <div class="ttd-wrap">
+      <div class="ttd-block">
+        <span id="labelPenerima">Yang Menerima</span>
+        <div class="ttd-space"></div>
+        <div class="ttd-line" id="outNama2">-</div>
+      </div>
+      <div class="ttd-block">
+        <span id="labelPemberi">Yang Menyerahkan</span>
+        <div class="ttd-space"></div>
+        <div class="ttd-line" id="outPetugas">-</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  function terbilang(n) {
+    n = Math.floor(Math.abs(Number(n) || 0));
+    const satuan = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+    function sub(x) {
+      if (x < 12) return satuan[x];
+      if (x < 20) return sub(x - 10) + " belas";
+      if (x < 100) return sub(Math.floor(x / 10)) + " puluh" + (x % 10 ? " " + sub(x % 10) : "");
+      if (x < 200) return "seratus" + (x % 100 ? " " + sub(x % 100) : "");
+      if (x < 1000) return sub(Math.floor(x / 100)) + " ratus" + (x % 100 ? " " + sub(x % 100) : "");
+      if (x < 2000) return "seribu" + (x % 1000 ? " " + sub(x % 1000) : "");
+      if (x < 1000000) return sub(Math.floor(x / 1000)) + " ribu" + (x % 1000 ? " " + sub(x % 1000) : "");
+      if (x < 1000000000) return sub(Math.floor(x / 1000000)) + " juta" + (x % 1000000 ? " " + sub(x % 1000000) : "");
+      return sub(Math.floor(x / 1000000000)) + " miliar" + (x % 1000000000 ? " " + sub(x % 1000000000) : "");
+    }
+    if (n === 0) return "nol";
+    return sub(n).replace(/\s+/g, " ").trim();
+  }
+  function formatRp(n) { return Number(n || 0).toLocaleString("id-ID"); }
+  function tgl(iso, panjang) {
+    if (!iso) return "-";
+    const d = new Date(iso);
+    return panjang
+      ? d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
+      : d.toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" });
+  }
+  function set(id, v) { document.getElementById(id).textContent = v; }
+
+  // jenis: "tarik" (penarikan tabungan biasa) atau "lulus" (penyerahan saldo kelulusan)
+  const raw = sessionStorage.getItem("kwitansiData");
+  if (!raw) {
+    document.getElementById("kertas").innerHTML =
+      '<p style="text-align:center; font-family:sans-serif; padding:60px 0;">Data kwitansi tidak ditemukan. ' +
+      'Buka halaman ini lewat tombol "Cetak Kwitansi" di aplikasi.</p>';
+  } else {
+    const d = JSON.parse(raw);
+    const lulus = d.jenis === "lulus";
+
+    set("outJudul", lulus ? "KWITANSI PENYERAHAN TABUNGAN" : "KWITANSI PENARIKAN TABUNGAN");
+    document.getElementById("labelKelas").textContent = "Kelas";
+    document.getElementById("labelUntuk").textContent = lulus ? "Keterangan" : "Untuk";
+    document.getElementById("labelPenerima").textContent = lulus ? "Yang Menerima (Siswa/Wali)" : "Yang Menerima";
+    document.getElementById("labelPemberi").textContent = "Yang Menyerahkan";
+
+    set("outNama", d.nama); set("outNama2", d.nama);
+    set("outKelas", d.kelas || "-");
+    set("outKeterangan", d.keterangan || (lulus ? "Penyerahan saldo tabungan karena kelulusan" : "Penarikan tabungan"));
+    set("outJumlah", formatRp(d.jumlah));
+    set("outTerbilang", terbilang(d.jumlah));
+    set("outTanggalSingkat", tgl(d.tanggal, false));
+    set("outTanggalPanjang", tgl(d.tanggal, true));
+    set("outPetugas", d.petugas || "-");
+  }
+</script>
+</body>
+</html>
