@@ -18,9 +18,11 @@ const JENIS_TRX = {
 let trxBuku = [];          // seluruh buku kas, urut lama -> baru, sudah ada saldo berjalan
 let trxBatas = 100;        // jumlah baris yang ditampilkan di layar
 let trxCsv = { header: [], rows: [], footer: null };
+let trxInfo = null;
 
 async function initTransaksiPage() {
   try {
+    trxInfo = await infoSekolah();
     await muatBukuKas();
   } catch (err) {
     $t("tbodyT").innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--red); padding:20px;">Gagal memuat data: ${esc(err.message || err)}</td></tr>`;
@@ -212,10 +214,11 @@ function renderTransaksi() {
   const teksPeriode = (dari || sampai)
     ? `${dari ? formatTanggal(dari) : "awal"} s/d ${sampai ? formatTanggal(sampai) : "sekarang"}` : "Semua tanggal";
   const petugas = (window.currentProfile && window.currentProfile.nama) || "";
+  const infoT = trxInfo || {};
   $t("printHeaderT").innerHTML = `
     <div style="text-align:center; border-bottom:3px double #111; padding-bottom:8px; margin-bottom:14px;">
-      <div style="font-size:18px; font-weight:700;">SDN TAMBERU 1</div>
-      <div style="font-size:12px;">Kecamatan Batumarmar — Kabupaten Pamekasan, Jawa Timur</div>
+      <div style="font-size:18px; font-weight:700;">${esc(infoT.nama_sekolah || "SDN TAMBERU 1")}</div>
+      <div style="font-size:12px;">Kecamatan ${esc(infoT.kecamatan || "-")} — Kabupaten ${esc(infoT.kabupaten || "-")}, ${esc(infoT.provinsi || "-")}</div>
     </div>
     <div style="text-align:center; font-size:15px; font-weight:700; margin-bottom:6px;">BUKU KAS — RIWAYAT TRANSAKSI</div>
     <div style="font-size:12px; margin-bottom:12px;">

@@ -20,7 +20,7 @@ async function initLayout(pageKey, pageTitle) {
   try {
     const { data } = await window.db
       .from("profiles")
-      .select("nama, email, kelas, role, aktif")
+      .select("id, nama, email, kelas, role, aktif")
       .eq("id", session.user.id)
       .maybeSingle();
     profile = data || null;
@@ -46,6 +46,13 @@ async function initLayout(pageKey, pageTitle) {
   });
   const titleEl = document.getElementById("topbarTitle");
   if (titleEl && pageTitle) titleEl.textContent = pageTitle;
+
+  // 3b. Nama sekolah di sidebar (dinamis dari Pengaturan, kalau ada)
+  infoSekolah().then(info => {
+    const brandEl = document.getElementById("brandNamaSekolah");
+    if (brandEl) brandEl.textContent = info.nama_sekolah;
+    window.infoSekolahCache = info;
+  });
 
   // 4. Tampilkan nama & inisial avatar (pakai nama profil kalau sudah ada, fallback ke email)
   const displayName = (profile && profile.nama) || session.user.email || "Admin";
@@ -117,4 +124,62 @@ function esc(v) {
   return String(v ?? "").replace(/[&<>"']/g, c => (
     { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
   ));
+}
+
+// Catat jejak penghapusan (audit log) sebelum baris benar-benar dihapus.
+// tabel: nama tabel, dataLama: isi baris sebelum dihapus, ringkasan: deskripsi singkat.
+// Gagal mencatat log TIDAK membatalkan penghapusan (supaya tidak mengunci user
+// kalau migrasi 05_audit_log.sql belum dijalankan) — hanya dicatat di console.
+async function catatAuditHapus(tabel, dataLama, ringkasan) {
+  try {
+    const profile = window.currentProfile;
+    await window.db.from("audit_log").insert({
+      aksi: "hapus",
+      tabel,
+      ringkasan,
+      data_sebelum: dataLama,
+      oleh_id: (profile && profile.id) || null,
+      oleh_nama: (profile && profile.nama) || null
+    });
+  } catch (err) {
+    console.warn("Gagal mencatat audit log (migrasi 05 mungkin belum dijalankan):", err);
+  }
+}
+
+// Ambil info sekolah (tabel pengaturan, satu baris id=1) untuk dipakai di
+// kop surat/kwitansi, sidebar, dan halaman login. Kalau tabelnya kosong/gagal
+// (mis. RLS menolak akun guru, atau migrasi awal belum jalan), dikembalikan
+// nilai bawaan supaya tampilan tidak kosong/rusak.
+const INFO_SEKOLAH_DEFAULT = {
+  nama_sekolah: "SDN TAMBERU 1",
+  kecamatan: "Batumarmar",
+  kabupaten: "Pamekasan",
+  provinsi: "Jawa Timur",
+  kepala_sekolah: "MUSTAJI, S.Pd.M.M.Pd",
+  tahun_pelajaran: "2025/2026",
+  motto: "Anak Hebat Berawal dari Kebiasaan Baik",
+  tagline: "Maju Bersama, Cerdas Semua"
+};
+async function infoSekolah() {
+  try {
+    const { data, error } = await window.db.from("pengaturan").select("*").eq("id", 1).maybeSingle();
+    if (error || !data) return INFO_SEKOLAH_DEFAULT;
+    return { ...INFO_SEKOLAH_DEFAULT, ...data };
+  } catch (e) {
+    return INFO_SEKOLAH_DEFAULT;
+  }
+}
+
+// Hitung Saldo Kas saat ini = total tabungan (setor-tarik) dikurangi sisa
+// pinjaman yang belum kembali. Dipakai untuk mencegah pinjaman melebihi kas.
+async function hitungSaldoKas() {
+  const [tabungan, hutang] = await Promise.all([
+    fetchAll(() => window.db.from("tabungan").select("jenis, jumlah").order("id")),
+    fetchAll(() => window.db.from("hutang").select("jumlah, jumlah_dibayar").order("id"))
+  ]);
+  const totalTabungan = tabungan.reduce(
+    (a, r) => a + (r.jenis === "tarik" ? -Number(r.jumlah) : Number(r.jumlah)), 0);
+  const sisaHutang = hutang.reduce(
+    (a, r) => a + (Number(r.jumlah) - Number(r.jumlah_dibayar || 0)), 0);
+  return totalTabungan - sisaHutang;
 }

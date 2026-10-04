@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/img/icons/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/img/icons/icon-192.png">
+<meta name="theme-color" content="#0b1e42">
 <title>Masuk — Tabungan SDN TAMBERU 1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,7 +18,7 @@
     <div class="login-card">
       <img src="assets/img/icon-tabungan.png" alt="" style="width:64px;height:64px;display:block;margin:0 auto 14px;">
       <h1>Tabungan SDN TAMBERU 1</h1>
-      <p class="sub">Kecamatan Batumarmar — Kabupaten Pamekasan</p>
+      <p class="sub" id="loginSub">Kecamatan Batumarmar — Kabupaten Pamekasan</p>
 
       <div class="login-error" id="loginError">Email atau kata sandi salah.</div>
 
@@ -45,6 +49,12 @@
   </div>
 
   <script src="assets/js/supabase-client.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script>
+    infoSekolah().then(info => {
+      document.getElementById("loginSub").textContent = `Kecamatan ${info.kecamatan} — Kabupaten ${info.kabupaten}`;
+    });
+  </script>
   <script>
     // Kalau sudah login, langsung lempar ke dashboard
     window.db.auth.getSession().then(({ data: { session } }) => {

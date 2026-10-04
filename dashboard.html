@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/img/icons/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/img/icons/icon-192.png">
+<meta name="theme-color" content="#0b1e42">
 <title>Beranda — Tabungan SDN TAMBERU 1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -64,7 +68,7 @@
         </div>
       </div>
 
-      <!-- Transaksi terbaru + Aksi cepat/hutang -->
+      <!-- Transaksi terbaru + Aksi cepat/catatan -->
       <div class="grid-2">
         <div class="panel">
           <div class="panel-head"><h3>Transaksi Terbaru</h3><a href="transaksi.html">Lihat Semua</a></div>
@@ -97,6 +101,16 @@
             </table>
           </div>
         </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>🏆 Rajin Menabung Bulan Ini</h3></div>
+        <table class="data-table">
+          <thead><tr><th>Peringkat</th><th>Nama</th><th>Kelas</th><th>Total Setoran</th></tr></thead>
+          <tbody id="tableJuara">
+            <tr><td colspan="4" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
+          </tbody>
+        </table>
       </div>
     </main>
   </div>

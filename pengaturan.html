@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/img/icons/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/img/icons/icon-192.png">
+<meta name="theme-color" content="#0b1e42">
 <title>Pengaturan — Tabungan SDN TAMBERU 1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -57,6 +61,17 @@
         </div>
       </div>
 
+      <!-- Cadangan Data: tampil untuk semua akun (otomatis dibatasi sesuai hak akses masing-masing) -->
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="panel-head"><h3>Cadangan Data</h3></div>
+        <p style="font-size:12.5px; color:var(--text-muted); margin:0 0 12px;">
+          Unduh seluruh data (siswa, tabungan, pinjaman, cicilan) sebagai satu file yang bisa dibuka di Excel.
+          Disarankan diunduh rutin (mis. sebulan sekali) sebagai cadangan, jaga-jaga kalau ada masalah.
+        </p>
+        <div class="form-msg" id="backupMsg"></div>
+        <button type="button" class="btn-small" id="btnBackup">⬇️ Unduh Semua Data (CSV)</button>
+      </div>
+
       <!-- Ditampilkan kalau yang login BUKAN admin -->
       <div class="panel" id="bukanAdminBox" style="display:none;">
         <div class="empty-state">
@@ -68,6 +83,28 @@
 
       <!-- Ditampilkan kalau yang login ADALAH admin -->
       <div id="adminBox" style="display:none;">
+        <div class="panel" style="margin-bottom:16px;">
+          <div class="panel-head"><h3>Info Sekolah</h3></div>
+          <p style="font-size:12.5px; color:var(--text-muted); margin:0 0 12px;">
+            Dipakai otomatis di kop Surat Pernyataan, Kwitansi, dan laporan cetak.
+            (Banner gambar di bagian atas halaman tidak ikut berubah — itu gambar tetap.)
+          </p>
+          <div class="form-msg" id="sekolahMsg"></div>
+          <form id="formSekolah">
+            <div class="filter-row">
+              <div class="field"><label for="fNamaSekolah">Nama Sekolah</label><input type="text" id="fNamaSekolah" required></div>
+              <div class="field"><label for="fKepsek">Kepala Sekolah</label><input type="text" id="fKepsek"></div>
+              <div class="field"><label for="fKecamatan">Kecamatan</label><input type="text" id="fKecamatan"></div>
+              <div class="field"><label for="fKabupaten">Kabupaten</label><input type="text" id="fKabupaten"></div>
+              <div class="field"><label for="fProvinsi">Provinsi</label><input type="text" id="fProvinsi"></div>
+              <div class="field"><label for="fTahunAjaran">Tahun Pelajaran</label><input type="text" id="fTahunAjaran" placeholder="cth. 2026/2027"></div>
+              <div class="field"><label for="fTagline">Tagline</label><input type="text" id="fTagline"></div>
+              <div class="field"><label for="fMotto">Motto</label><input type="text" id="fMotto"></div>
+            </div>
+            <button type="submit" class="btn-primary" id="btnSimpanSekolah" style="max-width:260px; margin-top:14px;">Simpan Info Sekolah</button>
+          </form>
+        </div>
+
         <div class="grid-2">
           <div class="panel">
             <div class="panel-head"><h3>Tambah Akun Baru</h3></div>
@@ -125,6 +162,21 @@
               password barunya sendiri lewat email — admin tidak perlu tahu password lama).
               Untuk menghapus akun secara permanen, lakukan lewat Supabase Dashboard → Authentication → Users.
             </p>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:16px;">
+          <div class="panel-head"><h3>Log Aktivitas (Penghapusan)</h3></div>
+          <p style="font-size:12.5px; color:var(--text-muted); margin:0 0 12px;">
+            Catatan siapa menghapus data apa — untuk jaga-jaga kalau ada yang terhapus tanpa sengaja.
+          </p>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead><tr><th>Waktu</th><th>Tabel</th><th>Ringkasan</th><th>Oleh</th></tr></thead>
+              <tbody id="tableAudit">
+                <tr><td colspan="4" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

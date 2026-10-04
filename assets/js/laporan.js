@@ -6,6 +6,7 @@
 let lapSiswa = [];       // daftar siswa yang boleh dilihat akun ini
 let lapTransaksi = [];   // semua transaksi tabungan (urut lama -> baru)
 let lapMode = "transaksi";
+let lapInfo = null;
 let lapIsAdmin = false;
 let lapTerakhir = { header: [], rows: [], footer: null, judul: "" }; // untuk unduh CSV
 
@@ -31,8 +32,10 @@ async function initLaporanPage() {
     return;
   }
 
+  lapInfo = await infoSekolah();
   isiPilihanSiswa();
   renderLaporan();
+  renderRingkasanPerKelas();
 
   $("fKelasLaporan").addEventListener("change", () => { isiPilihanSiswa(); renderLaporan(); });
   ["fSiswaLaporan", "fDari", "fSampai", "chkTerbaru"].forEach(id => $(id).addEventListener("change", renderLaporan));
@@ -60,6 +63,41 @@ function isiPilihanSiswa() {
   $("fSiswaLaporan").innerHTML =
     `<option value="">${esc(labelSemua)}</option>` +
     list.map(s => `<option value="${esc(s.id)}">${esc(s.nama)} — ${esc(s.kelas || "-")}${s.aktif ? "" : " (nonaktif)"}</option>`).join("");
+}
+
+// ---------- Ringkasan per Kelas (sepanjang waktu, tidak terikat saringan tabel di bawah) ----------
+const URUTAN_KELAS_LAPORAN = ["Kelas I", "Kelas II", "Kelas III", "Kelas IV", "Kelas V", "Kelas VI"];
+function renderRingkasanPerKelas() {
+  const tbody = $("tablePerKelas");
+  const saldoPerSiswa = {};
+  lapTransaksi.forEach(r => {
+    const delta = r.jenis === "tarik" ? -Number(r.jumlah) : Number(r.jumlah);
+    saldoPerSiswa[r.siswa_id] = (saldoPerSiswa[r.siswa_id] || 0) + delta;
+  });
+
+  const perKelas = {};
+  lapSiswa.forEach(s => {
+    const kelas = s.kelas || "-";
+    if (!perKelas[kelas]) perKelas[kelas] = { kelas, aktif: 0, total: 0 };
+    if (s.aktif) perKelas[kelas].aktif++;
+    perKelas[kelas].total += saldoPerSiswa[s.id] || 0;
+  });
+
+  const daftar = Object.values(perKelas).sort((a, b) => {
+    const ia = URUTAN_KELAS_LAPORAN.indexOf(a.kelas), ib = URUTAN_KELAS_LAPORAN.indexOf(b.kelas);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+  });
+
+  if (daftar.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a1bd; padding:20px;">Belum ada data siswa.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = daftar.map(k => `
+    <tr>
+      <td>${esc(k.kelas)}</td>
+      <td>${k.aktif}</td>
+      <td>${formatRupiah(k.total)}</td>
+    </tr>`).join("");
 }
 
 // ---------- Utilitas tanggal & periode ----------
@@ -227,10 +265,11 @@ function renderLaporan() {
     ? `${d.dari ? formatTanggal(d.dari) : "awal"} s/d ${d.sampai ? formatTanggal(d.sampai) : "sekarang"}`
     : "Semua tanggal";
   const petugas = (window.currentProfile && window.currentProfile.nama) || "";
+  const info = lapInfo || {};
   $("printHeader").innerHTML = `
     <div style="text-align:center; border-bottom:3px double #111; padding-bottom:8px; margin-bottom:14px;">
-      <div style="font-size:18px; font-weight:700;">SDN TAMBERU 1</div>
-      <div style="font-size:12px;">Kecamatan Batumarmar — Kabupaten Pamekasan, Jawa Timur</div>
+      <div style="font-size:18px; font-weight:700;">${esc(info.nama_sekolah || "SDN TAMBERU 1")}</div>
+      <div style="font-size:12px;">Kecamatan ${esc(info.kecamatan || "-")} — Kabupaten ${esc(info.kabupaten || "-")}, ${esc(info.provinsi || "-")}</div>
     </div>
     <div style="text-align:center; font-size:15px; font-weight:700; margin-bottom:6px;">LAPORAN TABUNGAN (${esc(NAMA_MODE[lapMode].toUpperCase())})</div>
     <div style="font-size:12px; margin-bottom:12px;">

@@ -1,6 +1,6 @@
 # Tabungan SDN TAMBERU 1
 
-Aplikasi web ringan untuk mengelola tabungan siswa, Buku Hutang, dan catatan kelas.
+Aplikasi web ringan untuk mengelola tabungan siswa, buku hutang, dan catatan kelas.
 Dibangun dengan HTML/CSS/JavaScript murni (tanpa framework berat) agar cepat dibuka
 di PC maupun HP, dengan **Supabase** sebagai database & login, dan siap di-hosting
 gratis di **Cloudflare Pages**.
@@ -19,6 +19,10 @@ tbr1-app/
 ├── laporan.html         -> Laporan per siswa (setoran/minggu/bulan/tahun)
 ├── pengaturan.html      -> Profil saya + Manajemen Akun (admin)
 ├── surat-pinjaman.html  -> Surat Pernyataan Peminjaman (dibuka dari tombol "Cetak Surat")
+├── kwitansi.html        -> Kwitansi Penarikan / Penyerahan Kelulusan (dibuka dari tombol "Cetak Kwitansi")
+├── bantuan.html         -> Halaman Bantuan (penjelasan tiap menu)
+├── manifest.json        -> Supaya aplikasi bisa "Ditambahkan ke Layar Utama" (PWA)
+├── sw.js                -> Service worker pendukung PWA (tidak menyimpan data Supabase)
 ├── assets/
 │   ├── css/style.css    -> Semua styling
 │   └── js/
@@ -32,7 +36,9 @@ tbr1-app/
     ├── schema.sql          -> Skrip awal: pembuatan tabel & keamanan (RLS)
     ├── 02_multi_user.sql   -> Migrasi: tabel akun (profiles) + hak akses per kelas
     ├── 03_catatan_bebas.sql -> Migrasi: Buku Catatan pakai Nama bebas, tanpa batasan kelas
-    └── 04_cicilan.sql      -> Migrasi: riwayat tiap cicilan pinjaman (tabel pembayaran_hutang)
+    ├── 04_cicilan.sql      -> Migrasi: riwayat tiap cicilan pinjaman (tabel pembayaran_hutang)
+    ├── 05_audit_log.sql    -> Migrasi: jejak siapa menghapus apa (tabel audit_log)
+    └── 06_pengaturan_publik.sql -> Migrasi: info sekolah boleh dibaca publik (perlu utk halaman login)
 ```
 
 ## Langkah 1 — Siapkan database di Supabase
@@ -71,6 +77,14 @@ tbr1-app/
    sehingga setiap pembayaran pinjaman tercatat (tanggal, jumlah, keterangan,
    petugas). Pembayaran lama otomatis dimasukkan sebagai satu baris
    "Pembayaran sebelumnya (tanpa rincian tanggal)". Aman dijalankan ulang.
+9. Buka **SQL Editor → New query** sekali lagi, salin seluruh isi file
+   `supabase/05_audit_log.sql`, lalu **Run**. Ini membuat tabel jejak
+   penghapusan (audit log) — siapa menghapus apa dan kapan, bisa dilihat
+   admin di menu Pengaturan → Log Aktivitas.
+10. Buka **SQL Editor → New query** sekali lagi, salin seluruh isi file
+    `supabase/06_pengaturan_publik.sql`, lalu **Run**. Ini mengizinkan
+    halaman Login membaca nama kecamatan/kabupaten sebelum orang itu masuk
+    (tetap hanya admin yang bisa MENGUBAH data sekolah).
 
 > **Kenapa perlu login?** Kunci "anon" yang Anda berikan bersifat publik —
 > siapa pun yang membuka halaman bisa melihatnya di kode. Karena itu, tabel
@@ -129,6 +143,16 @@ Lalu buka `http://localhost:8080` di browser.
 - [x] Halaman Login
 - [x] Beranda / Dashboard (kartu ringkasan, grafik, transaksi terbaru, aksi cepat) — **sudah terhubung ke data asli**
 - [x] Pengaturan → Manajemen Akun (admin tambah akun guru per kelas, aktif/nonaktifkan) — **sudah terhubung ke data asli**
+- [x] Cegah pinjaman melebihi Saldo Kas yang tersedia (Buku Catatan)
+- [x] Jejak penghapusan / audit log (Pengaturan → Log Aktivitas, khusus admin)
+- [x] Kenaikan Kelas (Data Siswa): Kelas I–V pindah kelas massal; Kelas VI jadi "Lulus" — saldo tabungan tiap siswa otomatis ditarik penuh & tercatat, lalu bisa cetak Kwitansi Penyerahan
+- [x] Kwitansi Penarikan tabungan (tombol di Riwayat Tabungan) dan Kwitansi Penyerahan saat kelulusan — surat-pinjaman.html & kwitansi.html, keduanya siap cetak A4
+- [x] Cadangan Data: tombol "Unduh Semua Data (CSV)" di Pengaturan (siswa, tabungan, pinjaman, cicilan jadi satu file Excel)
+- [x] Bisa diinstal seperti aplikasi HP (PWA) — ikon dompet, "Tambahkan ke Layar Utama" dari menu Chrome
+- [x] Pengaturan → Info Sekolah (admin bisa ubah nama sekolah, kepala sekolah, kecamatan, dll — otomatis kepakai di kop surat/kwitansi/laporan cetak; banner gambar di atas halaman tetap gambar statis, tidak ikut berubah)
+- [x] Pencarian nama di Data Siswa; Ringkasan per Kelas di halaman Laporan
+- [x] Papan "🏆 Rajin Menabung Bulan Ini" di Beranda (top 5 setoran terbanyak)
+- [x] Halaman Bantuan (penjelasan tiap menu, link "Bantuan" di pojok kiri bawah dekat tombol Keluar)
 - [x] Pengaturan → Profil Saya (semua akun bisa lihat profil & ubah password sendiri; admin bisa kirim link reset password untuk akun guru yang lupa password) — **sudah terhubung ke data asli**
 - [x] Data Siswa (tambah/ubah/aktifkan siswa, otomatis dibatasi per kelas untuk guru) — **sudah terhubung ke data asli**
 - [x] Tabungan (catat setor/tarik, saldo per siswa, riwayat + hapus) — **sudah terhubung ke data asli**

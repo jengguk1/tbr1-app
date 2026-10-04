@@ -55,6 +55,9 @@
     @page { size: A4; margin: 12mm; }
   }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/layout.js"></script>
 </head>
 <body>
 
@@ -65,8 +68,8 @@
 
   <div class="kertas" id="kertas">
     <div class="kop">
-      <h1>SDN TAMBERU 1</h1>
-      <p>Kecamatan Batumarmar — Kabupaten Pamekasan, Jawa Timur</p>
+      <h1 id="kopNama">SDN TAMBERU 1</h1>
+      <p id="kopAlamat">Kecamatan Batumarmar — Kabupaten Pamekasan, Jawa Timur</p>
     </div>
 
     <div class="judul">
@@ -99,7 +102,7 @@
       <p>Demikian surat pernyataan ini saya buat dengan sebenar-benarnya untuk dipergunakan sebagaimana mestinya.</p>
     </div>
 
-    <div class="tempat-tanggal">Batumarmar, <span id="outTanggalSurat">-</span></div>
+    <div class="tempat-tanggal"><span id="outTempatTanggal">Batumarmar</span>, <span id="outTanggalSurat">-</span></div>
 
     <div class="ttd-wrap">
       <div class="ttd-block">
@@ -116,6 +119,13 @@
   </div>
 
 <script>
+  infoSekolah().then(info => {
+    document.getElementById("kopNama").textContent = info.nama_sekolah;
+    document.getElementById("kopAlamat").textContent = `Kecamatan ${info.kecamatan} — Kabupaten ${info.kabupaten}, ${info.provinsi}`;
+    const tempatEl = document.getElementById("outTempatTanggal");
+    if (tempatEl) tempatEl.textContent = info.kecamatan;
+  });
+
   function terbilang(n) {
     n = Math.floor(Math.abs(Number(n) || 0));
     const satuan = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan",

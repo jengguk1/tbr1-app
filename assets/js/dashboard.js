@@ -12,7 +12,8 @@
     safe(loadBarChart),
     safe(() => loadDonut(ringkas)),
     safe(loadTransaksiTerbaru),
-    safe(loadHutangTerbaru)
+    safe(loadHutangTerbaru),
+    safe(loadJuaraMenabung)
   ]);
 
   // ---------- Kartu ringkasan ----------
@@ -176,6 +177,35 @@
         <td>${esc(r.nama_peminjam || "-")}</td>
         <td>${formatRupiah(r.jumlah)}</td>
         <td><span class="badge-status ${r.status === "lunas" ? "badge-lunas" : "badge-belum"}">${r.status === "lunas" ? "Lunas" : "Belum"}</span></td>
+      </tr>`).join("");
+  }
+
+  // ---------- 🏆 Rajin Menabung Bulan Ini (top 5 setoran terbanyak bulan berjalan) ----------
+  async function loadJuaraMenabung() {
+    const tbody = document.getElementById("tableJuara");
+    const setoran = await fetchAll(() => window.db.from("tabungan")
+      .select("siswa_id, jumlah, siswa:siswa_id(nama, kelas)")
+      .eq("jenis", "setor").gte("tanggal", awalBulanIni()).order("id"));
+
+    const perSiswa = {};
+    setoran.forEach(r => {
+      if (!r.siswa_id) return;
+      if (!perSiswa[r.siswa_id]) perSiswa[r.siswa_id] = { nama: r.siswa?.nama || "-", kelas: r.siswa?.kelas || "-", total: 0 };
+      perSiswa[r.siswa_id].total += Number(r.jumlah);
+    });
+
+    const top5 = Object.values(perSiswa).sort((a, b) => b.total - a.total).slice(0, 5);
+    if (top5.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a1bd; padding:20px;">Belum ada setoran bulan ini.</td></tr>`;
+      return;
+    }
+    const medali = ["🥇", "🥈", "🥉"];
+    tbody.innerHTML = top5.map((s, i) => `
+      <tr>
+        <td>${medali[i] || (i + 1)}</td>
+        <td>${esc(s.nama)}</td>
+        <td>${esc(s.kelas)}</td>
+        <td>${formatRupiah(s.total)}</td>
       </tr>`).join("");
   }
 })();

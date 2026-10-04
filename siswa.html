@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/img/icons/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/img/icons/icon-192.png">
+<meta name="theme-color" content="#0b1e42">
 <title>Data Siswa — Tabungan SDN TAMBERU 1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -67,8 +71,10 @@
         </div>
 
         <div class="panel">
-          <div class="panel-head">
+          <div class="panel-head" style="flex-wrap:wrap; gap:8px;">
             <h3>Daftar Siswa</h3>
+            <div style="display:flex; gap:8px; align-items:center;">
+            <input type="text" id="cariSiswa" placeholder="🔍 Cari nama..." style="width:140px; padding:6px 10px; border-radius:8px; border:1px solid var(--border); font-size:12.5px;">
             <select id="filterKelas" style="display:none; width:auto; padding:6px 10px; border-radius:8px; border:1px solid var(--border); font-size:12.5px;">
               <option value="">Semua Kelas</option>
               <option>Kelas I</option>
@@ -78,12 +84,45 @@
               <option>Kelas V</option>
               <option>Kelas VI</option>
             </select>
+            </div>
           </div>
           <table class="data-table">
             <thead><tr><th>Nama</th><th>Kelas</th><th>L/P</th><th>Status</th><th></th></tr></thead>
             <tbody id="tableSiswa">
               <tr><td colspan="5" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
             </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="panel-head"><h3>Kenaikan Kelas</h3></div>
+        <div class="form-msg" id="naikMsg"></div>
+        <div class="filter-row" style="align-items:flex-end;">
+          <div class="field">
+            <label for="fKelasAsal">Kelas Asal</label>
+            <select id="fKelasAsal">
+              <option value="" disabled selected>Pilih kelas</option>
+            </select>
+          </div>
+          <div style="align-self:center; padding-bottom:12px; color:var(--text-muted);">→</div>
+          <div class="field">
+            <label>Kelas Tujuan</label>
+            <input type="text" id="fKelasTujuan" disabled style="background:#f0f3fa;">
+          </div>
+          <div class="field" style="flex:0 0 auto;">
+            <button type="button" class="btn-primary" id="btnNaikKelas" style="margin-top:0; white-space:nowrap;">Proses Kenaikan Kelas</button>
+          </div>
+        </div>
+        <p style="font-size:11.5px; color:var(--text-muted); margin:10px 0 0;">
+          Kelas I–V: siswa aktif dipindah ke kelas berikutnya, riwayat tabungan tetap tersimpan utuh.
+          Kelas VI: dianggap <b>lulus</b> — saldo tabungan setiap siswa otomatis ditarik penuh (tercatat sebagai
+          transaksi) dan siswa dinonaktifkan, lalu muncul daftar untuk mencetak Kwitansi Penyerahan masing-masing.
+        </p>
+        <div id="hasilKelulusan" style="display:none; margin-top:14px;">
+          <table class="data-table">
+            <thead><tr><th>Nama</th><th>Saldo Diserahkan</th><th></th></tr></thead>
+            <tbody id="tableKelulusan"></tbody>
           </table>
         </div>
       </div>

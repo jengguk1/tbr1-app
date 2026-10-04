@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/img/icons/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/img/icons/icon-192.png">
+<meta name="theme-color" content="#0b1e42">
 <title>Laporan — Tabungan SDN TAMBERU 1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -62,6 +66,17 @@
 
       <!-- Kop laporan (hanya muncul saat dicetak) -->
       <div class="print-only" id="printHeader"></div>
+
+      <!-- Ringkasan per Kelas: total tabungan tiap kelas sepanjang waktu, tidak terikat saringan di atas -->
+      <div class="panel no-print" style="margin-bottom:16px;" id="panelPerKelas">
+        <div class="panel-head"><h3>Ringkasan per Kelas</h3></div>
+        <table class="data-table">
+          <thead><tr><th>Kelas</th><th>Siswa Aktif</th><th>Total Tabungan</th></tr></thead>
+          <tbody id="tablePerKelas">
+            <tr><td colspan="3" style="text-align:center; color:#94a1bd; padding:20px;">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
 
       <!-- Ringkasan -->
       <div class="stat-grid">

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/img/icons/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/img/icons/icon-192.png">
+<meta name="theme-color" content="#0b1e42">
+<title>Bantuan — Tabungan SDN TAMBERU 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  .bantuan-item { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+  .bantuan-item summary {
+    cursor: pointer; padding: 14px 16px; font-weight: 700; font-size: 14.5px;
+    display: flex; align-items: center; gap: 10px; list-style: none;
+  }
+  .bantuan-item summary::-webkit-details-marker { display: none; }
+  .bantuan-item summary .ico { font-size: 18px; }
+  .bantuan-item summary::after { content: "▾"; margin-left: auto; color: var(--text-muted); }
+  .bantuan-item[open] summary::after { content: "▴"; }
+  .bantuan-item .isi { padding: 0 16px 16px 46px; font-size: 13.5px; color: var(--text-dark); line-height: 1.7; }
+  .bantuan-item .isi ul { margin: 6px 0; padding-left: 18px; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <nav class="sidebar" id="sidebarSlot"></nav>
+  <div class="main">
+    <header class="topbar" id="topbarSlot"></header>
+    <main class="content">
+      <div class="page-head">
+        <h2>Bantuan</h2>
+        <p>Penjelasan singkat tiap menu — kalau masih bingung, tanyakan ke admin sekolah.</p>
+      </div>
+
+      <div class="panel">
+        <details class="bantuan-item" open>
+          <summary><span class="ico">🏠</span> Beranda</summary>
+          <div class="isi">
+            Ringkasan keadaan tabungan sekolah: total tabungan, sisa pinjaman, Saldo Kas yang
+            benar-benar ada (tabungan dikurangi pinjaman yang belum kembali), grafik, transaksi
+            terbaru, dan papan "Rajin Menabung".
+          </div>
+        </details>
+
+        <details class="bantuan-item">
+          <summary><span class="ico">👦</span> Data Siswa</summary>
+          <div class="isi">
+            Tambah, ubah, cari, dan aktifkan/nonaktifkan siswa. Guru kelas hanya melihat
+            siswa di kelasnya sendiri; admin bisa melihat semua kelas.<br>
+            Panel <b>Kenaikan Kelas</b> dipakai di akhir tahun ajaran: Kelas I–V pindah massal
+            ke kelas berikutnya; Kelas VI jadi "Lulus" — saldo tabungan tiap siswa otomatis
+            diserahkan (tercatat sebagai penarikan) dan bisa langsung dicetak kwitansinya.
+          </div>
+        </details>
+
+        <details class="bantuan-item">
+          <summary><span class="ico">🐷</span> Tabungan</summary>
+          <div class="isi">
+            Catat setoran dan penarikan tabungan tiap siswa. Penarikan tidak bisa melebihi
+            saldo siswa tersebut. Tombol <b>Cetak Kwitansi</b> tersedia untuk setiap penarikan,
+            sebagai bukti transaksi.
+          </div>
+        </details>
+
+        <details class="bantuan-item">
+          <summary><span class="ico">📓</span> Buku Catatan</summary>
+          <div class="isi">
+            Mencatat pinjaman dari tabungan kelas — untuk guru atau siapa saja yang meminjam
+            (bukan siswa). Pinjaman tidak bisa melebihi Saldo Kas yang tersedia. Ada riwayat
+            cicilan per pembayaran, dan tombol <b>Cetak Surat</b> untuk surat pernyataan
+            peminjaman yang bisa ditandatangani.
+          </div>
+        </details>
+
+        <details class="bantuan-item">
+          <summary><span class="ico">🔁</span> Transaksi</summary>
+          <div class="isi">
+            Buku kas gabungan: semua setoran, penarikan, pinjaman, dan cicilan dalam satu
+            daftar berurutan, lengkap dengan Saldo Kas berjalan. Bisa disaring per jenis,
+            tanggal, atau dicari namanya — lalu dicetak atau diunduh ke Excel.
+          </div>
+        </details>
+
+        <details class="bantuan-item">
+          <summary><span class="ico">📊</span> Laporan</summary>
+          <div class="isi">
+            Laporan tabungan per siswa (atau semua siswa), bisa dilihat per setoran, per
+            minggu, per bulan, atau per tahun — lengkap pemasukan, penarikan, dan saldo
+            berjalan. Ada juga Ringkasan per Kelas untuk melihat total tiap kelas sekaligus.
+          </div>
+        </details>
+
+        <details class="bantuan-item">
+          <summary><span class="ico">⚙️</span> Pengaturan</summary>
+          <div class="isi">
+            <b>Profil Saya</b>: semua akun bisa lihat profilnya dan ganti password sendiri.<br>
+            <b>Khusus admin</b>: tambah akun guru baru, aktifkan/nonaktifkan akun, reset
+            password guru yang lupa, ubah Info Sekolah (nama, kepala sekolah, dll — otomatis
+            kepakai di kop surat/kwitansi), lihat Log Aktivitas penghapusan, dan unduh
+            Cadangan Data.
+          </div>
+        </details>
+
+        <details class="bantuan-item">
+          <summary><span class="ico">📲</span> Pasang di Layar Utama HP</summary>
+          <div class="isi">
+            Buka situs ini di Chrome HP, ketuk menu titik tiga (⋮) di pojok kanan atas, lalu
+            pilih <b>"Tambahkan ke Layar Utama"</b> atau <b>"Instal aplikasi"</b>. Setelah itu
+            muncul ikon aplikasi sendiri di HP, bisa dibuka tanpa alamat browser.
+          </div>
+        </details>
+
+        <details class="bantuan-item">
+          <summary><span class="ico">🔑</span> Lupa Password</summary>
+          <div class="isi">
+            Di halaman masuk, ketuk <b>"Lupa password?"</b>, masukkan email akun, nanti link
+            atur ulang password dikirim ke email tersebut. Admin juga bisa mengirimkan link
+            itu lewat menu Pengaturan → Daftar Akun → tombol "Reset Password".
+          </div>
+        </details>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/layout.js"></script>
+<script>initLayout("bantuan", "Bantuan");</script>
+</body>
+</html>

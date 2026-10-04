@@ -52,6 +52,10 @@ async function handleSubmitPinjam(e) {
   btn.disabled = true;
   btn.textContent = "Menyimpan...";
   try {
+    const saldoKas = await hitungSaldoKas();
+    if (payload.jumlah > saldoKas) {
+      throw new Error(`jumlah pinjaman melebihi Saldo Kas yang ada sekarang (${formatRupiah(saldoKas)}).`);
+    }
     const { error } = await window.db.from("hutang").insert(payload);
     if (error) throw error;
     showMsg("Pinjaman berhasil dicatat.", "success");
@@ -149,6 +153,11 @@ async function muatRiwayatPinjam() {
     btn.addEventListener("click", async () => {
       if (!confirm("Hapus catatan pinjaman ini beserta seluruh riwayat pembayarannya?")) return;
       btn.disabled = true;
+      const row = data.find(r => r.id === btn.dataset.id);
+      if (row) {
+        await catatAuditHapus("hutang", row,
+          `Pinjaman ${row.nama_peminjam || "-"} ${formatRupiah(row.jumlah)} (sisa ${formatRupiah(Number(row.jumlah) - Number(row.jumlah_dibayar || 0))})`);
+      }
       const { error } = await window.db.from("hutang").delete().eq("id", btn.dataset.id);
       if (error) alert("Gagal menghapus: " + error.message);
       await refreshSemua();
@@ -282,6 +291,11 @@ async function muatRiwayatBayar() {
       if (!confirm("Hapus catatan pembayaran ini? Sisa pinjaman akan otomatis dikoreksi.")) return;
       btn.disabled = true;
       try {
+        const row = data.find(r => r.id === btn.dataset.id);
+        if (row) {
+          await catatAuditHapus("pembayaran_hutang", row,
+            `Cicilan ${row.hutang?.nama_peminjam || "-"} ${formatRupiah(row.jumlah)}`);
+        }
         const { error } = await window.db.from("pembayaran_hutang").delete().eq("id", btn.dataset.id);
         if (error) throw error;
         await sinkronkanPembayaran(btn.dataset.hutang);

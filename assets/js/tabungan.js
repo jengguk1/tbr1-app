@@ -146,16 +146,41 @@ async function muatRiwayatTabungan() {
       <td>${formatRupiah(r.jumlah)}</td>
       <td>${esc(r.keterangan || "-")}</td>
       <td>${esc(r.petugas || "-")}</td>
-      <td><button class="link-btn" data-id="${r.id}">Hapus</button></td>
+      <td style="white-space:nowrap;">
+        ${r.jenis === "tarik" ? `<button class="link-btn" data-action="kwitansi" data-id="${esc(r.id)}">Cetak Kwitansi</button> &nbsp;·&nbsp;` : ""}
+        <button class="link-btn" data-action="hapus" data-id="${esc(r.id)}">Hapus</button>
+      </td>
     </tr>`).join("");
 
-  tbody.querySelectorAll("button[data-id]").forEach(btn => {
+  tbody.querySelectorAll('button[data-action="hapus"]').forEach(btn => {
     btn.addEventListener("click", async () => {
       if (!confirm("Hapus transaksi ini? Saldo siswa akan otomatis berubah.")) return;
       btn.disabled = true;
+      const row = data.find(r => r.id === btn.dataset.id);
+      if (row) {
+        await catatAuditHapus("tabungan", row,
+          `${row.jenis === "tarik" ? "Tarik" : "Setor"} ${formatRupiah(row.jumlah)} — ${row.siswa?.nama || "-"}`);
+      }
       const { error } = await window.db.from("tabungan").delete().eq("id", btn.dataset.id);
       if (error) alert("Gagal menghapus: " + error.message);
       await Promise.all([renderSaldoPerSiswa(), muatRiwayatTabungan()]);
+    });
+  });
+
+  tbody.querySelectorAll('button[data-action="kwitansi"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const row = data.find(r => r.id === btn.dataset.id);
+      if (!row) return;
+      sessionStorage.setItem("kwitansiData", JSON.stringify({
+        jenis: "tarik",
+        nama: row.siswa?.nama || "-",
+        kelas: row.siswa?.kelas || "-",
+        jumlah: row.jumlah,
+        tanggal: row.tanggal,
+        keterangan: row.keterangan || "Penarikan tabungan",
+        petugas: row.petugas || ""
+      }));
+      window.open("kwitansi.html", "_blank");
     });
   });
 }

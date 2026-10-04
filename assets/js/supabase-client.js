@@ -13,3 +13,11 @@ window.SUPABASE_ANON_KEY_FOR_TEMP = SUPABASE_ANON_KEY;
 
 // Dibuat sebagai variabel global window.db supaya dipakai file JS lain
 window.db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Daftarkan service worker (syarat aplikasi bisa di-"Tambahkan ke Layar Utama").
+// Didaftarkan di sini karena file ini dimuat di semua halaman.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(err => console.warn("SW gagal daftar:", err));
+  });
+}
