@@ -299,22 +299,23 @@ async function muatLogAudit() {
   const tbody = document.getElementById("tableAudit");
   const { data, error } = await window.db
     .from("audit_log")
-    .select("waktu, tabel, ringkasan, oleh_nama")
+    .select("waktu, aksi, tabel, ringkasan, oleh_nama")
     .order("waktu", { ascending: false })
     .limit(100);
 
   if (error) {
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--red); padding:20px;">Belum aktif: ${esc(error.message)}<br><span style="font-size:11.5px;">Jalankan migrasi 05_audit_log.sql di Supabase.</span></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--red); padding:20px;">Belum aktif: ${esc(error.message)}<br><span style="font-size:11.5px;">Jalankan migrasi 05_audit_log.sql di Supabase.</span></td></tr>`;
     return;
   }
   if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a1bd; padding:20px;">Belum ada aktivitas penghapusan yang tercatat.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a1bd; padding:20px;">Belum ada aktivitas yang tercatat.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = data.map(r => `
     <tr>
       <td style="white-space:nowrap;">${new Date(r.waktu).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })}</td>
+      <td><span class="badge-status ${r.aksi === "hapus" ? "badge-belum" : "badge-setor"}">${esc(r.aksi === "hapus" ? "Hapus" : "Ubah")}</span></td>
       <td>${esc(r.tabel)}</td>
       <td>${esc(r.ringkasan || "-")}</td>
       <td>${esc(r.oleh_nama || "-")}</td>

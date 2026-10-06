@@ -2,11 +2,13 @@
 // tabungan.js — Catat setoran/tarikan, saldo per siswa, riwayat
 // ============================================================
 let daftarSiswaCache = [];
+let editingTabunganId = null;
+let namaPetugasTabungan = "Admin";
 
 async function initTabunganPage() {
   const profile = window.currentProfile;
   const isAdmin = profile && profile.role === "admin";
-  const namaPetugas = (profile && profile.nama) || "Admin";
+  namaPetugasTabungan = (profile && profile.nama) || "Admin";
 
   document.getElementById("fTanggal").value = hariIni();
 
@@ -19,7 +21,17 @@ async function initTabunganPage() {
   await muatDaftarSiswaUntukForm();
   await Promise.all([renderSaldoPerSiswa(), muatRiwayatTabungan()]);
 
-  document.getElementById("formTabungan").addEventListener("submit", (e) => handleSubmitTabungan(e, namaPetugas));
+  document.getElementById("formTabungan").addEventListener("submit", (e) => handleSubmitTabungan(e, namaPetugasTabungan));
+  document.getElementById("btnBatalEditTabungan").addEventListener("click", resetFormTabungan);
+}
+
+function resetFormTabungan() {
+  editingTabunganId = null;
+  document.getElementById("formTabungan").reset();
+  document.getElementById("fTanggal").value = hariIni();
+  document.getElementById("formTabunganTitle").textContent = "Catat Tabungan";
+  document.getElementById("btnSimpanTabungan").textContent = "Simpan Transaksi";
+  document.getElementById("btnBatalEditTabungan").style.display = "none";
 }
 
 async function muatDaftarSiswaUntukForm() {
@@ -62,24 +74,37 @@ async function handleSubmitTabungan(e, namaPetugas) {
   try {
     if (payload.jenis === "tarik") {
       const riwayat = await fetchAll(() => window.db.from("tabungan")
-        .select("jenis, jumlah").eq("siswa_id", payload.siswa_id).order("created_at").order("id"));
-      const saldoSiswa = riwayat.reduce(
-        (a, r) => a + (r.jenis === "tarik" ? -Number(r.jumlah) : Number(r.jumlah)), 0);
+        .select("id, jenis, jumlah").eq("siswa_id", payload.siswa_id).order("created_at").order("id"));
+      const saldoSiswa = riwayat
+        .filter(r => r.id !== editingTabunganId) // saat mengubah, abaikan efek baris lama ini sendiri
+        .reduce((a, r) => a + (r.jenis === "tarik" ? -Number(r.jumlah) : Number(r.jumlah)), 0);
       if (payload.jumlah > saldoSiswa) {
         throw new Error(`penarikan melebihi saldo siswa (saldo saat ini ${formatRupiah(saldoSiswa)}).`);
       }
     }
-    const { error } = await window.db.from("tabungan").insert(payload);
-    if (error) throw error;
-    showMsg("Transaksi tabungan berhasil dicatat.", "success");
-    document.getElementById("formTabungan").reset();
-    document.getElementById("fTanggal").value = hariIni();
+
+    if (editingTabunganId) {
+      const { data: lama } = await window.db.from("tabungan").select("*").eq("id", editingTabunganId).single();
+      const { error } = await window.db.from("tabungan").update(payload).eq("id", editingTabunganId);
+      if (error) throw error;
+      if (lama) {
+        await catatAudit("ubah", "tabungan", lama,
+          `${lama.jenis === "tarik" ? "Tarik" : "Setor"} ${formatRupiah(lama.jumlah)} → ${payload.jenis === "tarik" ? "Tarik" : "Setor"} ${formatRupiah(payload.jumlah)}`);
+      }
+      showMsg("Transaksi berhasil diperbarui.", "success");
+    } else {
+      const { error } = await window.db.from("tabungan").insert(payload);
+      if (error) throw error;
+      showMsg("Transaksi tabungan berhasil dicatat.", "success");
+    }
+
+    resetFormTabungan();
     await Promise.all([renderSaldoPerSiswa(), muatRiwayatTabungan()]);
   } catch (err) {
     showMsg("Gagal menyimpan: " + (err.message || err), "error");
   } finally {
     btn.disabled = false;
-    btn.textContent = "Simpan Transaksi";
+    btn.textContent = editingTabunganId ? "Update Transaksi" : "Simpan Transaksi";
   }
 }
 
@@ -128,7 +153,7 @@ async function muatRiwayatTabungan() {
   const tbody = document.getElementById("tableRiwayat");
   const { data, error } = await window.db
     .from("tabungan")
-    .select("id, tanggal, jenis, jumlah, keterangan, petugas, siswa:siswa_id(nama, kelas)")
+    .select("id, siswa_id, tanggal, jenis, jumlah, keterangan, petugas, siswa:siswa_id(nama, kelas)")
     .order("created_at", { ascending: false })
     .limit(50);
 
@@ -147,10 +172,28 @@ async function muatRiwayatTabungan() {
       <td>${esc(r.keterangan || "-")}</td>
       <td>${esc(r.petugas || "-")}</td>
       <td style="white-space:nowrap;">
+        <button class="link-btn" data-action="ubah" data-id="${esc(r.id)}">Ubah</button> &nbsp;·&nbsp;
         ${r.jenis === "tarik" ? `<button class="link-btn" data-action="kwitansi" data-id="${esc(r.id)}">Cetak Kwitansi</button> &nbsp;·&nbsp;` : ""}
         <button class="link-btn" data-action="hapus" data-id="${esc(r.id)}">Hapus</button>
       </td>
     </tr>`).join("");
+
+  tbody.querySelectorAll('button[data-action="ubah"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const row = data.find(r => r.id === btn.dataset.id);
+      if (!row) return;
+      editingTabunganId = row.id;
+      document.getElementById("fSiswa").value = row.siswa_id || "";
+      document.getElementById("fJenis").value = row.jenis;
+      document.getElementById("fTanggal").value = row.tanggal;
+      document.getElementById("fJumlah").value = row.jumlah;
+      document.getElementById("fKeterangan").value = row.keterangan || "";
+      document.getElementById("formTabunganTitle").textContent = "Ubah Transaksi";
+      document.getElementById("btnSimpanTabungan").textContent = "Update Transaksi";
+      document.getElementById("btnBatalEditTabungan").style.display = "inline-block";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
 
   tbody.querySelectorAll('button[data-action="hapus"]').forEach(btn => {
     btn.addEventListener("click", async () => {

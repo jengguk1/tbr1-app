@@ -126,17 +126,15 @@ function esc(v) {
   ));
 }
 
-// Catat jejak penghapusan (audit log) sebelum baris benar-benar dihapus.
-// tabel: nama tabel, dataLama: isi baris sebelum dihapus, ringkasan: deskripsi singkat.
-// Gagal mencatat log TIDAK membatalkan penghapusan (supaya tidak mengunci user
+// Catat jejak perubahan (audit log) — dipanggil SEBELUM baris dihapus atau diubah.
+// aksi: "hapus" atau "ubah". dataLama: isi baris sebelum berubah. ringkasan: deskripsi singkat.
+// Gagal mencatat log TIDAK membatalkan aksi utamanya (supaya tidak mengunci user
 // kalau migrasi 05_audit_log.sql belum dijalankan) — hanya dicatat di console.
-async function catatAuditHapus(tabel, dataLama, ringkasan) {
+async function catatAudit(aksi, tabel, dataLama, ringkasan) {
   try {
     const profile = window.currentProfile;
     await window.db.from("audit_log").insert({
-      aksi: "hapus",
-      tabel,
-      ringkasan,
+      aksi, tabel, ringkasan,
       data_sebelum: dataLama,
       oleh_id: (profile && profile.id) || null,
       oleh_nama: (profile && profile.nama) || null
@@ -144,6 +142,9 @@ async function catatAuditHapus(tabel, dataLama, ringkasan) {
   } catch (err) {
     console.warn("Gagal mencatat audit log (migrasi 05 mungkin belum dijalankan):", err);
   }
+}
+async function catatAuditHapus(tabel, dataLama, ringkasan) {
+  return catatAudit("hapus", tabel, dataLama, ringkasan);
 }
 
 // Ambil info sekolah (tabel pengaturan, satu baris id=1) untuk dipakai di
