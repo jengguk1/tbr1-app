@@ -1,12 +1,21 @@
 // ============================================================
 // sw.js — Service worker minimal, dua tujuan:
 //  1) Supaya browser menganggap aplikasi ini "bisa diinstal" (syarat PWA).
-//  2) Membuat file statis (css/js/gambar) sedikit lebih cepat dimuat ulang.
-// TIDAK menyimpan data Supabase — semua permintaan ke luar domain ini
-// (termasuk ke *.supabase.co) selalu diambil langsung dari internet,
-// tidak pernah dari cache, supaya data yang ditampilkan selalu yang terbaru.
+//  2) Cadangan offline SAJA (file dipakai dari cache hanya kalau benar-benar
+//     tidak ada internet) — BUKAN untuk mempercepat, supaya pembaruan kode
+//     selalu langsung terlihat begitu di-deploy. Pelajaran dari percobaan
+//     pertama: strategi "cache dulu baru jaringan" bikin file JS/CSS lama
+//     nyangkut terus di browser orang meski server sudah di-update.
+// TIDAK PERNAH menyimpan data Supabase — permintaan ke *.supabase.co selalu
+// langsung ke internet, tidak pernah dari cache.
+//
+// CACHE_NAME sengaja dibuat berbeda dari versi sebelumnya (v1 -> v2).
+// File ini sendiri berubah setiap kali CACHE_NAME dinaikkan, sehingga
+// browser otomatis sadar ada service worker baru dan langsung menghapus
+// cache lama (lihat "activate" di bawah) — PENTING: setiap kali mengubah
+// cara kerja file ini lagi di kemudian hari, naikkan juga CACHE_NAME-nya.
 // ============================================================
-const CACHE_NAME = "tbr1-shell-v1";
+const CACHE_NAME = "tbr1-shell-v2";
 const ASSET_PATTERN = /\.(?:css|js|png|jpg|jpeg|svg|woff2?)$/;
 
 self.addEventListener("install", (event) => {
@@ -28,25 +37,17 @@ self.addEventListener("fetch", (event) => {
   // Hanya tangani file dari domain situs ini sendiri.
   if (url.origin !== self.location.origin) return;
 
-  // File statis (css/js/gambar/font): coba cache dulu, kalau tidak ada baru ambil dari jaringan.
-  if (ASSET_PATTERN.test(url.pathname)) {
+  // File statis (css/js/gambar/font) MAUPUN halaman HTML: selalu coba ambil
+  // dari jaringan dulu. Cache hanya dipakai sebagai cadangan kalau request
+  // itu gagal (mis. sedang offline) — jadi versi terbaru selalu yang tampil
+  // ketika internet tersedia, cache tidak pernah "mengalahkan" server.
+  if (ASSET_PATTERN.test(url.pathname) || event.request.mode === "navigate") {
     event.respondWith(
-      caches.match(event.request).then(cached =>
-        cached || fetch(event.request).then(resp => {
-          const salinan = resp.clone();
-          caches.open(CACHE_NAME).then(c => c.put(event.request, salinan));
-          return resp;
-        })
-      )
-    );
-    return;
-  }
-
-  // Halaman HTML: selalu ambil dari jaringan dulu supaya tidak ada versi lama yang nyangkut;
-  // cache hanya dipakai sebagai cadangan kalau benar-benar sedang offline.
-  if (event.request.mode === "navigate") {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      fetch(event.request).then(resp => {
+        const salinan = resp.clone();
+        caches.open(CACHE_NAME).then(c => c.put(event.request, salinan));
+        return resp;
+      }).catch(() => caches.match(event.request))
     );
   }
 });
