@@ -322,15 +322,49 @@ table.data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 }
 @media (max-width: 720px) {
   .app-shell { flex-direction: column; }
-  .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; overflow-x: auto; align-items: center; }
+
+  /* "Mode HP": sidebar jadi bar navigasi BAWAH yang mengambang, seperti aplikasi HP
+     pada umumnya — bukan lagi baris ikon besar di atas yang memakan tempat. */
+  .sidebar {
+    position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 80;
+    width: 100%; height: auto; flex-direction: row;
+    padding: 4px 2px calc(4px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -4px 14px rgba(0,0,0,.18);
+  }
   .sidebar-brand, .sidebar-footer { display: none; }
-  .nav-list { display: flex; flex: none; }
-  .nav-link { white-space: nowrap; }
-  .nav-link .nav-label { display: none; }
-  .sidebar-user { flex-shrink: 0; border-top: none; margin-top: 0; margin-left: 6px; }
-  .sidebar-user-info span { max-width: 90px; }
+
+  .nav-list { display: flex; flex: 1; justify-content: space-around; margin: 0; }
+  .nav-list li { margin-bottom: 0; flex: 1; display: flex; }
+  .nav-link {
+    flex: 1; flex-direction: column; gap: 2px; padding: 5px 2px;
+    border-radius: 10px; align-items: center;
+  }
+  .nav-link .nav-ico { width: 23px; height: 23px; }
+  .nav-link .nav-label { display: block; font-size: 8.8px; font-weight: 600; white-space: nowrap; }
+  .nav-link.active { box-shadow: none; background: rgba(244,196,48,.2); }
+
+  /* Chip pengguna (nama + Bantuan + Keluar) dipindah mengambang di pojok kanan atas,
+     di atas banner — supaya bar bawah bisa fokus penuh untuk menu. */
+  .sidebar-user {
+    position: fixed; top: 8px; right: 8px; z-index: 80;
+    background: rgba(11,30,66,.88); backdrop-filter: blur(3px);
+    border-radius: 999px; padding: 5px 12px 5px 5px;
+    border-top: none; margin-top: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,.2);
+  }
+  .sidebar-user-info span { max-width: 72px; font-size: 10px; }
+  .logout-link { font-size: 9.5px; }
+
+  /* Beri jarak di bawah supaya konten terakhir tidak ketutup bar navigasi */
+  .main { padding-bottom: 66px; }
+  .content { padding: 14px 14px 22px; }
+  .topbar { height: 58px; }
+
   .stat-grid { grid-template-columns: 1fr 1fr; }
-  .topbar { height: 74px; }
+}
+@media (max-width: 380px) {
+  .nav-link .nav-label { display: none; }
+  .nav-link .nav-ico { width: 25px; height: 25px; }
 }
 
 /* ---------- Modal (form pembayaran cicilan) ---------- */
