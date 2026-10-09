@@ -221,9 +221,10 @@ async function muatDaftarSiswa(isAdmin) {
       <td>${s.jenis_kelamin || "-"}</td>
       <td><span class="badge-status ${s.aktif ? "badge-lunas" : "badge-belum"}">${s.aktif ? "Aktif" : "Nonaktif"}</span></td>
       <td style="white-space:nowrap;">
-        <button class="link-btn" data-action="edit" data-id="${s.id}">Ubah</button>
+        <button class="link-btn" data-action="edit" data-id="${esc(s.id)}">Ubah</button>
         &nbsp;·&nbsp;
-        <button class="link-btn" data-action="toggle" data-id="${s.id}" data-aktif="${s.aktif}">${s.aktif ? "Nonaktifkan" : "Aktifkan"}</button>
+        <button class="link-btn" data-action="toggle" data-id="${esc(s.id)}" data-aktif="${s.aktif}">${s.aktif ? "Nonaktifkan" : "Aktifkan"}</button>
+        ${!s.aktif ? `&nbsp;·&nbsp;<button class="link-btn" data-action="hapus" data-id="${esc(s.id)}" style="color:var(--red);">Hapus</button>` : ""}
       </td>
     </tr>`).join("");
 
@@ -251,6 +252,32 @@ async function muatDaftarSiswa(isAdmin) {
       const aktifBaru = btn.dataset.aktif !== "true";
       const { error } = await window.db.from("siswa").update({ aktif: aktifBaru }).eq("id", btn.dataset.id);
       if (error) alert("Gagal mengubah status: " + error.message);
+      await muatDaftarSiswa(document.getElementById("filterKelas").style.display !== "none");
+    });
+  });
+
+  tbody.querySelectorAll('button[data-action="hapus"]').forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const row = data.find(s => s.id === btn.dataset.id);
+      if (!row) return;
+      const yakin = confirm(
+        `Hapus "${row.nama}" secara PERMANEN?\n\n` +
+        `Ini akan ikut menghapus SELURUH riwayat tabungan siswa ini dan tidak bisa dibatalkan.\n` +
+        `Kalau cuma ingin menyembunyikannya dari daftar, pakai "Nonaktifkan" saja (bisa diaktifkan lagi kapan pun).\n\n` +
+        `Lanjutkan hapus permanen?`
+      );
+      if (!yakin) return;
+
+      btn.disabled = true;
+      btn.textContent = "Menghapus...";
+      await catatAudit("hapus", "siswa", row, `Hapus siswa ${row.nama} (${row.kelas || "-"}) — termasuk seluruh riwayat tabungannya`);
+      const { error } = await window.db.from("siswa").delete().eq("id", btn.dataset.id);
+      if (error) {
+        alert("Gagal menghapus: " + error.message);
+        btn.disabled = false;
+        btn.textContent = "Hapus";
+        return;
+      }
       await muatDaftarSiswa(document.getElementById("filterKelas").style.display !== "none");
     });
   });

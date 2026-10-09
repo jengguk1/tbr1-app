@@ -154,7 +154,7 @@ Lalu buka `http://localhost:8080` di browser.
 - [x] Papan "🏆 Rajin Menabung Bulan Ini" di Beranda (top 5 setoran terbanyak)
 - [x] Halaman Bantuan (penjelasan tiap menu, link "Bantuan" di pojok kiri bawah dekat tombol Keluar)
 - [x] Pengaturan → Profil Saya (semua akun bisa lihat profil & ubah password sendiri; admin bisa kirim link reset password untuk akun guru yang lupa password) — **sudah terhubung ke data asli**
-- [x] Data Siswa (tambah/ubah/aktifkan siswa, otomatis dibatasi per kelas untuk guru) — **sudah terhubung ke data asli**
+- [x] Data Siswa (tambah/ubah/aktifkan siswa, otomatis dibatasi per kelas untuk guru; **hapus permanen** tersedia khusus siswa yang sudah dinonaktifkan dulu, sebagai pengaman) — **sudah terhubung ke data asli**
 - [x] Tabungan (catat setor/tarik, saldo per siswa, riwayat + **ubah**/hapus) — **sudah terhubung ke data asli**
 - [x] Tata letak HP ("mode HP"): menu jadi bar navigasi bawah mengambang (seperti aplikasi HP pada umumnya), chip nama/Bantuan/Keluar pindah ke pojok kanan atas, halaman jadi lebih lega di layar sempit
 - [x] Buku Catatan (catat pinjaman dari tabungan kelas — peminjam bebas siapa saja, tidak dibatasi kelas; rekap sisa, riwayat cicilan per pembayaran, cetak Surat Pernyataan Peminjaman) — **sudah terhubung ke data asli**
