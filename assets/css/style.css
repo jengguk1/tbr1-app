@@ -115,6 +115,7 @@ button { font-family: inherit; cursor: pointer; }
   font-weight: 700; font-size: 14px;
 }
 .sidebar-user-info { display: flex; flex-direction: column; min-width: 0; }
+.user-links { display: flex; align-items: center; gap: 6px; color: #8fa0c9; font-size: 11px; }
 .sidebar-user-info span {
   font-size: 12px; color: #e7ecf9; font-weight: 600;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;
@@ -193,6 +194,7 @@ button { font-family: inherit; cursor: pointer; }
 /* ---------- Panels / grid ---------- */
 .grid-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
 .grid-2-b { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-2 > *, .grid-2-b > * { min-width: 0; }
 
 .panel {
   background: var(--card-bg);
@@ -208,6 +210,20 @@ button { font-family: inherit; cursor: pointer; }
 /* ---------- Quick actions ---------- */
 .panel-head-img { margin-bottom: 12px; }
 .panel-head-img img { height: 34px; display: block; }
+
+/* Aksi Cepat sebagai satu baris ringkas di bawah kartu ringkasan */
+.quick-strip {
+  display: grid; grid-template-columns: auto repeat(4, 1fr);
+  gap: 14px; align-items: center; padding: 12px 18px;
+}
+.quick-strip-title img { height: 46px; display: block; }
+.quick-strip .quick-btn-img { text-align: center; }
+.quick-strip .quick-btn-img img { width: auto; max-width: 100%; max-height: 68px; margin: 0 auto; }
+
+/* Grafik dengan tinggi tetap supaya tidak melebar sesuai lebar panel */
+.chart-box { position: relative; width: 100%; }
+.chart-box-bar { height: 310px; }
+.chart-box-donut { height: 190px; }
 
 .saldo-kas-box {
   text-align: center; background: linear-gradient(135deg, #fff8e6, #fff0c9);
@@ -361,6 +377,17 @@ table.data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   .topbar { height: 58px; }
 
   .stat-grid { grid-template-columns: 1fr 1fr; }
+  .panel { overflow-x: auto; }
+  /* Tabel di HP: sel lebih rapat dan tombol aksi boleh turun baris supaya tidak terpotong */
+  .data-table th, .data-table td { padding: 8px 6px; }
+  .data-table td { white-space: normal !important; }
+  .data-table .link-btn { display: inline-block; margin: 1px 0; }
+  .panah-kelas { display: none; }
+  .quick-strip { grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; }
+  .quick-strip-title { display: none; }
+  .quick-strip .quick-btn-img img { max-height: 52px; }
+  .chart-box-bar { height: 230px; }
+  .chart-box-donut { height: 180px; }
 }
 @media (max-width: 380px) {
   .nav-link .nav-label { display: none; }

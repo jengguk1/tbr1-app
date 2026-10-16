@@ -94,7 +94,7 @@
           { label: "Pinjaman baru", data: bulan.map(b => b.hutang), backgroundColor: "#f5a2a2", borderRadius: 6 }
         ]
       },
-      options: { responsive: true, plugins: { legend: { position: "bottom" } }, scales: { y: { beginAtZero: true } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, scales: { y: { beginAtZero: true } } }
     });
   }
 
@@ -111,7 +111,7 @@
           backgroundColor: ["#2e7cf6", "#f5a2a2"]
         }]
       },
-      options: { responsive: true, plugins: { legend: { position: "bottom" } } }
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { boxWidth: 12 } } } }
     });
   }
 
