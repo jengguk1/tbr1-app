@@ -21,6 +21,7 @@ tbr1-app/
 ├── surat-pinjaman.html  -> Surat Pernyataan Peminjaman (dibuka dari tombol "Cetak Surat")
 ├── kwitansi.html        -> Kwitansi Penarikan / Penyerahan Kelulusan (dibuka dari tombol "Cetak Kwitansi")
 ├── bantuan.html         -> Halaman Bantuan (penjelasan tiap menu)
+├── assets/vendor/       -> Library & font disimpan DI DALAM aplikasi (supabase.js, chart.umd.min.js, font Poppins) — tidak lagi bergantung pada jsdelivr/Google Fonts
 ├── manifest.json        -> Supaya aplikasi bisa "Ditambahkan ke Layar Utama" (PWA)
 ├── sw.js                -> Service worker pendukung PWA (tidak menyimpan data Supabase)
 ├── assets/
@@ -157,6 +158,8 @@ Lalu buka `http://localhost:8080` di browser.
 - [x] Data Siswa (tambah/ubah/aktifkan siswa, otomatis dibatasi per kelas untuk guru; **hapus permanen** tersedia khusus siswa yang sudah dinonaktifkan dulu, sebagai pengaman) — **sudah terhubung ke data asli**
 - [x] Tabungan (catat setor/tarik, saldo per siswa, riwayat + **ubah**/hapus) — **sudah terhubung ke data asli**
 - [x] Tata letak HP ("mode HP"): menu jadi bar navigasi bawah mengambang (seperti aplikasi HP pada umumnya), chip nama/Bantuan/Keluar pindah ke pojok kanan atas, halaman jadi lebih lega di layar sempit
+- [x] Perbaikan "macet di logo dompet saat pakai paket data": semua file luar (supabase-js, Chart.js, font Poppins) kini dihosting di dalam aplikasi (assets/vendor), service worker v3 memberi batas tunggu 6 dtk lalu memakai salinan tersimpan, menu tampil lebih dulu sebelum data, dan muncul pesan jelas kalau server data tidak terjangkau dalam 12 dtk
+- [x] Tabungan: ketuk nama siswa di "Saldo per Siswa" → Riwayat menampilkan SEMUA transaksi siswa itu (lengkap Ubah/Hapus/Kwitansi, plus ringkasan jumlah transaksi & saldo); ketuk lagi atau tombol "Tampilkan semua siswa" untuk kembali ke tampilan biasa
 - [x] Beranda dirapikan: Aksi Cepat naik jadi satu baris tepat di bawah kartu ringkasan (terlihat tanpa scroll), grafik batang & donat dibuat bertinggi tetap dan donat diperkecil; halaman di HP tidak lagi melebar keluar layar (tabel panjang bergeser di dalam panelnya sendiri), tombol aksi di tabel boleh turun baris, dan tulisan Bantuan · Keluar jadi satu baris
 - [x] Buku Catatan (catat pinjaman dari tabungan kelas — peminjam bebas siapa saja, tidak dibatasi kelas; rekap sisa, riwayat cicilan per pembayaran, cetak Surat Pernyataan Peminjaman) — **sudah terhubung ke data asli**
 - [x] Transaksi (buku kas gabungan: setoran, penarikan, pinjaman, cicilan; saldo kas berjalan; filter jenis/tanggal/pencarian; cetak & unduh Excel) — **sudah terhubung ke data asli**

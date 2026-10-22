@@ -3,6 +3,7 @@
 // ============================================================
 let daftarSiswaCache = [];
 let editingTabunganId = null;
+let siswaTerpilihId = null; // siswa yang diketuk di tabel Saldo per Siswa (null = tampilan biasa)
 let namaPetugasTabungan = "Admin";
 
 async function initTabunganPage() {
@@ -23,6 +24,7 @@ async function initTabunganPage() {
 
   document.getElementById("formTabungan").addEventListener("submit", (e) => handleSubmitTabungan(e, namaPetugasTabungan));
   document.getElementById("btnBatalEditTabungan").addEventListener("click", resetFormTabungan);
+  document.getElementById("btnSemuaRiwayat").addEventListener("click", () => pilihSiswaRiwayat(null));
 }
 
 function resetFormTabungan() {
@@ -142,23 +144,58 @@ async function renderSaldoPerSiswa() {
     .sort((a, b) => (a.kelas || "").localeCompare(b.kelas || "") || a.nama.localeCompare(b.nama));
 
   tbody.innerHTML = rows.map(s => `
-    <tr>
+    <tr class="row-klik ${s.id === siswaTerpilihId ? "row-terpilih" : ""}" data-siswa-id="${esc(s.id)}">
       <td>${esc(s.nama)}</td>
       <td>${esc(s.kelas || "-")}</td>
       <td>${formatRupiah(s.saldo)}</td>
     </tr>`).join("");
+
+  tbody.querySelectorAll("tr[data-siswa-id]").forEach(tr => {
+    tr.addEventListener("click", () => {
+      const id = tr.dataset.siswaId;
+      pilihSiswaRiwayat(id === siswaTerpilihId ? null : id); // ketuk lagi = batal pilih
+    });
+  });
+}
+
+// Pilih siswa dari tabel Saldo (atau null untuk kembali ke tampilan biasa), lalu muat ulang riwayat.
+async function pilihSiswaRiwayat(id) {
+  siswaTerpilihId = id;
+  await Promise.all([renderSaldoPerSiswa(), muatRiwayatTabungan()]);
+  if (id) {
+    // Kalau panel riwayat masih jauh di bawah layar, gulirkan ke sana
+    const panel = document.getElementById("panelRiwayat");
+    if (panel && panel.getBoundingClientRect().top > window.innerHeight * 0.6) {
+      panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
 }
 
 async function muatRiwayatTabungan() {
   const tbody = document.getElementById("tableRiwayat");
-  const { data, error } = await window.db
-    .from("tabungan")
-    .select("id, siswa_id, tanggal, jenis, jumlah, keterangan, petugas, siswa:siswa_id(nama, kelas)")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const kolom = "id, siswa_id, tanggal, jenis, jumlah, keterangan, petugas, siswa:siswa_id(nama, kelas)";
+  let data, error = null;
+  try {
+    if (siswaTerpilihId) {
+      // Siswa dipilih: tampilkan SEMUA riwayatnya (bukan hanya 50 terakhir)
+      data = await fetchAll(() => window.db.from("tabungan").select(kolom)
+        .eq("siswa_id", siswaTerpilihId)
+        .order("tanggal", { ascending: false }).order("created_at", { ascending: false }).order("id"));
+    } else {
+      const res = await window.db.from("tabungan").select(kolom)
+        .order("created_at", { ascending: false }).limit(50);
+      data = res.data; error = res.error;
+    }
+  } catch (e) { error = e; }
 
-  if (error || !data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#94a1bd; padding:20px;">Belum ada transaksi tabungan.</td></tr>`;
+  perbaruiKepalaRiwayat(data || []);
+
+  if (error) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--red); padding:20px;">Gagal memuat data: ${esc(error.message || error)}</td></tr>`;
+    return;
+  }
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#94a1bd; padding:20px;">${siswaTerpilihId ? "Siswa ini belum punya transaksi." : "Belum ada transaksi tabungan."}</td></tr>`;
     return;
   }
 
@@ -226,4 +263,24 @@ async function muatRiwayatTabungan() {
       window.open("kwitansi.html", "_blank");
     });
   });
+}
+
+// Judul + ringkasan di atas tabel riwayat: berubah saat satu siswa dipilih.
+function perbaruiKepalaRiwayat(data) {
+  const judul = document.getElementById("judulRiwayat");
+  const ringkas = document.getElementById("ringkasRiwayat");
+  const tombol = document.getElementById("btnSemuaRiwayat");
+
+  if (!siswaTerpilihId) {
+    judul.textContent = "Riwayat Transaksi Tabungan";
+    ringkas.style.display = "none";
+    tombol.style.display = "none";
+    return;
+  }
+  const siswa = daftarSiswaCache.find(x => x.id === siswaTerpilihId);
+  const saldo = data.reduce((a, r) => a + (r.jenis === "tarik" ? -Number(r.jumlah) : Number(r.jumlah)), 0);
+  judul.textContent = "Riwayat: " + (siswa ? siswa.nama : "Siswa terpilih");
+  ringkas.innerHTML = `${siswa ? esc(siswa.kelas || "-") + " · " : ""}<b>${data.length}</b> transaksi · saldo <b>${formatRupiah(saldo)}</b>`;
+  ringkas.style.display = "block";
+  tombol.style.display = "inline-block";
 }

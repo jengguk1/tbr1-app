@@ -7,29 +7,16 @@
 //  4. Sediakan tombol keluar (logout)
 // ============================================================
 
-async function initLayout(pageKey, pageTitle) {
-  // 1. Cek sesi login
+async function initLayoutInti(pageKey, pageTitle) {
+  // 1. Cek sesi login (dibaca dari penyimpanan lokal browser, tidak butuh internet)
   const { data: { session } } = await window.db.auth.getSession();
   if (!session) {
     window.location.href = "index.html";
     return null;
   }
 
-  // 1b. Ambil profil (peran admin/guru, kelas, nama) — dipakai halaman lain lewat window.currentProfile
-  let profile = null;
-  try {
-    const { data } = await window.db
-      .from("profiles")
-      .select("id, nama, email, kelas, role, aktif")
-      .eq("id", session.user.id)
-      .maybeSingle();
-    profile = data || null;
-  } catch (e) {
-    console.warn("Profil belum tersedia:", e);
-  }
-  window.currentProfile = profile;
-
-  // 2. Suntikkan partial sidebar & topbar
+  // 2. Suntikkan sidebar & topbar LEBIH DULU (file dari situs ini sendiri) — supaya menu langsung
+  //    tampil dan bisa dipakai walau server data sedang lambat/tidak terjangkau.
   const sidebarSlot = document.getElementById("sidebarSlot");
   const topbarSlot = document.getElementById("topbarSlot");
 
@@ -47,20 +34,16 @@ async function initLayout(pageKey, pageTitle) {
   const titleEl = document.getElementById("topbarTitle");
   if (titleEl && pageTitle) titleEl.textContent = pageTitle;
 
-  // 3b. Nama sekolah di sidebar (dinamis dari Pengaturan, kalau ada)
-  infoSekolah().then(info => {
-    const brandEl = document.getElementById("brandNamaSekolah");
-    if (brandEl) brandEl.textContent = info.nama_sekolah;
-    window.infoSekolahCache = info;
-  });
-
-  // 4. Tampilkan nama & inisial avatar (pakai nama profil kalau sudah ada, fallback ke email)
-  const displayName = (profile && profile.nama) || session.user.email || "Admin";
-  const subLabel = profile ? (profile.role === "admin" ? "Admin" : (profile.kelas || "Guru")) : session.user.email;
+  // 4. Nama sementara dari email login (diperbarui setelah profil berhasil dimuat di bawah)
   const emailEl = document.getElementById("userEmail");
   const avatarEl = document.getElementById("userAvatar");
-  if (emailEl) emailEl.textContent = profile ? `${displayName} · ${subLabel}` : displayName;
-  if (avatarEl) avatarEl.textContent = displayName.charAt(0).toUpperCase();
+  const tampilkanNama = (profile) => {
+    const displayName = (profile && profile.nama) || session.user.email || "Admin";
+    const subLabel = profile ? (profile.role === "admin" ? "Admin" : (profile.kelas || "Guru")) : session.user.email;
+    if (emailEl) emailEl.textContent = profile ? `${displayName} · ${subLabel}` : displayName;
+    if (avatarEl) avatarEl.textContent = displayName.charAt(0).toUpperCase();
+  };
+  tampilkanNama(null);
 
   // 5. Tombol keluar
   const logoutBtn = document.getElementById("logoutBtn");
@@ -71,7 +54,58 @@ async function initLayout(pageKey, pageTitle) {
     });
   }
 
+  // 6. Nama sekolah di sidebar (dinamis dari Pengaturan, kalau ada) — tidak ditunggu
+  infoSekolah().then(info => {
+    const brandEl = document.getElementById("brandNamaSekolah");
+    if (brandEl) brandEl.textContent = info.nama_sekolah;
+    window.infoSekolahCache = info;
+  });
+
+  // 7. Ambil profil (peran admin/guru, kelas, nama) — dipakai halaman lain lewat window.currentProfile.
+  //    Ini satu-satunya langkah yang butuh server data; halaman menunggu di sini, tapi menu sudah tampil.
+  let profile = null;
+  try {
+    const { data } = await window.db
+      .from("profiles")
+      .select("id, nama, email, kelas, role, aktif")
+      .eq("id", session.user.id)
+      .maybeSingle();
+    profile = data || null;
+  } catch (e) {
+    console.warn("Profil belum tersedia:", e);
+  }
+  window.currentProfile = profile;
+  tampilkanNama(profile);
+
   return session;
+}
+
+// Pembungkus initLayout: kalau setelah 12 detik halaman belum juga siap (biasanya karena server
+// data tidak terjangkau dari jaringan yang dipakai, mis. paket data tertentu), tampilkan pesan
+// yang jelas — bukan halaman kosong yang membingungkan.
+async function initLayout(pageKey, pageTitle) {
+  const pengawas = setTimeout(tampilkanBannerKoneksi, 12000);
+  try {
+    return await initLayoutInti(pageKey, pageTitle);
+  } finally {
+    clearTimeout(pengawas);
+    sembunyikanBannerKoneksi();
+  }
+}
+function tampilkanBannerKoneksi() {
+  if (document.getElementById("bannerKoneksi")) return;
+  const d = document.createElement("div");
+  d.id = "bannerKoneksi";
+  d.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:300;background:#fff3cd;color:#664d03;" +
+    "padding:10px 14px;font-size:13px;line-height:1.5;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.25);";
+  d.innerHTML = "⚠️ Belum bisa terhubung ke server data. Kalau memakai paket data, coba pindah ke WiFi atau " +
+    "jaringan lain. <button type='button' onclick='location.reload()' style='margin-left:8px;padding:4px 10px;" +
+    "border:1px solid #664d03;border-radius:6px;background:#fff;cursor:pointer;font-size:12px;'>Muat ulang</button>";
+  document.body.appendChild(d);
+}
+function sembunyikanBannerKoneksi() {
+  const e = document.getElementById("bannerKoneksi");
+  if (e) e.remove();
 }
 
 // Util format Rupiah dipakai di banyak halaman

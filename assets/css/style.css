@@ -1,3 +1,22 @@
+/* Font Poppins disimpan di dalam aplikasi (bukan dari Google Fonts) supaya tetap tampil
+   walaupun jaringan operator memblokir/memperlambat situs luar. */
+@font-face {
+  font-family: "Poppins"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("../vendor/fonts/poppins-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Poppins"; font-style: normal; font-weight: 500; font-display: swap;
+  src: url("../vendor/fonts/poppins-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Poppins"; font-style: normal; font-weight: 600; font-display: swap;
+  src: url("../vendor/fonts/poppins-latin-600-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Poppins"; font-style: normal; font-weight: 700; font-display: swap;
+  src: url("../vendor/fonts/poppins-latin-700-normal.woff2") format("woff2");
+}
+
 /* ============================================================
    Aplikasi Tabungan SDN TAMBERU 1 — Stylesheet
    ============================================================ */
@@ -445,3 +464,13 @@ table.data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 }
 
 .muted-sm { color: var(--text-muted); font-size: 11.5px; }
+
+/* Baris Saldo per Siswa yang bisa diketuk untuk memfilter riwayat */
+.row-klik { cursor: pointer; }
+.row-klik:hover td { background: #f3f7ff; }
+.row-terpilih td { background: #e3eeff !important; font-weight: 600; }
+.row-terpilih td:first-child { box-shadow: inset 3px 0 0 var(--blue); }
+.ringkas-riwayat {
+  margin: 0 0 10px; padding: 8px 12px; border-radius: 10px; background: #e8f1fe;
+  color: var(--navy-800); font-size: 12.5px;
+}
