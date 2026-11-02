@@ -9,7 +9,6 @@
 <meta name="theme-color" content="#0b1e42">
 <title>Transaksi — Tabungan SDN TAMBERU 1</title>
 <link rel="stylesheet" href="assets/css/style.css">
-<script src="assets/vendor/supabase.js"></script>
 </head>
 <body>
 <div class="app-shell">
@@ -72,22 +71,22 @@
 
       <div class="stat-grid">
         <div class="stat-card">
-          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-tabungan.png" alt=""></div><div class="stat-label">Saldo Kas Saat Ini</div></div>
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-tabungan.webp" alt=""></div><div class="stat-label">Saldo Kas Saat Ini</div></div>
           <div class="stat-value" id="trxSaldoKas">Rp 0</div>
           <div class="stat-sub">Setoran − penarikan − pinjaman + cicilan</div>
         </div>
         <div class="stat-card">
-          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-transaksi.png" alt=""></div><div class="stat-label">Uang Masuk</div></div>
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-transaksi.webp" alt=""></div><div class="stat-label">Uang Masuk</div></div>
           <div class="stat-value amt-in" id="trxMasuk">Rp 0</div>
           <div class="stat-sub" id="trxMasukSub">0 setoran · 0 cicilan</div>
         </div>
         <div class="stat-card">
-          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-catatan.png" alt=""></div><div class="stat-label">Uang Keluar</div></div>
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-catatan.webp" alt=""></div><div class="stat-label">Uang Keluar</div></div>
           <div class="stat-value amt-out" id="trxKeluar">Rp 0</div>
           <div class="stat-sub" id="trxKeluarSub">0 penarikan · 0 pinjaman</div>
         </div>
         <div class="stat-card">
-          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-laporan.png" alt=""></div><div class="stat-label">Selisih</div></div>
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-laporan.webp" alt=""></div><div class="stat-label">Selisih</div></div>
           <div class="stat-value" id="trxSelisih">Rp 0</div>
           <div class="stat-sub" id="trxSelisihSub">0 transaksi</div>
         </div>
@@ -113,6 +112,8 @@
     </main>
   </div>
 </div>
+<script src="assets/js/boot.js"></script>
+<script src="assets/vendor/supabase.js"></script>
 <script src="assets/js/supabase-client.js"></script>
 <script src="assets/js/layout.js"></script>
 <script src="assets/js/transaksi.js"></script>

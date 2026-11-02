@@ -9,8 +9,6 @@
 <meta name="theme-color" content="#0b1e42">
 <title>Beranda — Tabungan SDN TAMBERU 1</title>
 <link rel="stylesheet" href="assets/css/style.css">
-<script src="assets/vendor/supabase.js"></script>
-<script src="assets/vendor/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="app-shell">
@@ -28,22 +26,22 @@
       <!-- Kartu ringkasan -->
       <div class="stat-grid">
         <div class="stat-card">
-          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-tabungan.png" alt=""></div><div class="stat-label">Total Tabungan</div></div>
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-tabungan.webp" alt=""></div><div class="stat-label">Total Tabungan</div></div>
           <div class="stat-value" id="statTabungan">Rp 0</div>
           <div class="stat-sub" id="statTabunganSub">Dari 0 siswa aktif</div>
         </div>
         <div class="stat-card">
-          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-catatan.png" alt=""></div><div class="stat-label">Total Catatan</div></div>
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-catatan.webp" alt=""></div><div class="stat-label">Total Catatan</div></div>
           <div class="stat-value" id="statHutang">Rp 0</div>
           <div class="stat-sub" id="statHutangSub">Dari 0 siswa</div>
         </div>
         <div class="stat-card">
-          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-siswa.png" alt=""></div><div class="stat-label">Jumlah Siswa Aktif</div></div>
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-siswa.webp" alt=""></div><div class="stat-label">Jumlah Siswa Aktif</div></div>
           <div class="stat-value" id="statSiswa">0</div>
           <div class="stat-sub" id="statSiswaSub">Dari 0 siswa</div>
         </div>
         <div class="stat-card">
-          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-transaksi.png" alt=""></div><div class="stat-label">Total Transaksi</div></div>
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-transaksi.webp" alt=""></div><div class="stat-label">Total Transaksi</div></div>
           <div class="stat-value" id="statTransaksi">0</div>
           <div class="stat-sub">Bulan ini</div>
         </div>
@@ -51,11 +49,11 @@
 
       <!-- Aksi Cepat: satu baris ringkas tepat di bawah kartu ringkasan (tanpa perlu scroll) -->
       <div class="panel quick-strip" style="margin-bottom:16px;">
-        <div class="quick-strip-title"><img src="assets/img/ribbon-aksicepat.png" alt="Aksi Cepat"></div>
-        <a class="quick-btn-img" href="tabungan.html"><img src="assets/img/btn-tambah-tabungan.png" alt="Tambah Tabungan"></a>
-        <a class="quick-btn-img" href="catatan.html"><img src="assets/img/btn-tambah-catatan.png" alt="Tambah Catatan"></a>
-        <a class="quick-btn-img" href="transaksi.html"><img src="assets/img/btn-catat-transaksi.png" alt="Catatan Transaksi"></a>
-        <a class="quick-btn-img" href="laporan.html"><img src="assets/img/btn-lihat-laporan.png" alt="Lihat Laporan"></a>
+        <div class="quick-strip-title"><img src="assets/img/ribbon-aksicepat.webp" alt="Aksi Cepat"></div>
+        <a class="quick-btn-img" href="tabungan.html"><img src="assets/img/btn-tambah-tabungan.webp" alt="Tambah Tabungan"></a>
+        <a class="quick-btn-img" href="catatan.html"><img src="assets/img/btn-tambah-catatan.webp" alt="Tambah Catatan"></a>
+        <a class="quick-btn-img" href="transaksi.html"><img src="assets/img/btn-catat-transaksi.webp" alt="Catatan Transaksi"></a>
+        <a class="quick-btn-img" href="laporan.html"><img src="assets/img/btn-lihat-laporan.webp" alt="Lihat Laporan"></a>
       </div>
 
       <!-- Grafik + Rekap -->
@@ -113,6 +111,8 @@
   </div>
 </div>
 
+<script src="assets/js/boot.js"></script>
+<script src="assets/vendor/supabase.js"></script>
 <script src="assets/js/supabase-client.js"></script>
 <script src="assets/js/layout.js"></script>
 <script src="assets/js/dashboard.js"></script>

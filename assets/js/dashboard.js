@@ -7,6 +7,23 @@
 
   const safe = (fn) => fn().catch(err => { console.error("Gagal memuat bagian dashboard:", err); });
 
+  // Chart.js (±200 KB) hanya dipakai untuk 2 grafik, jadi dimuat BELAKANGAN —
+  // supaya kartu angka dan menu tidak ikut menunggu di sinyal lambat.
+  let chartSiap = null;
+  function pastikanChart() {
+    if (window.Chart) return Promise.resolve();
+    if (!chartSiap) {
+      chartSiap = new Promise((resolve, reject) => {
+        const el = document.createElement("script");
+        el.src = "assets/vendor/chart.umd.min.js";
+        el.onload = resolve;
+        el.onerror = () => reject(new Error("Gagal memuat library grafik"));
+        document.head.appendChild(el);
+      });
+    }
+    return chartSiap;
+  }
+
   const ringkas = await safe(loadStatCards);
   await Promise.all([
     safe(loadBarChart),
@@ -58,6 +75,7 @@
 
   // ---------- Grafik batang: 6 bulan terakhir ----------
   async function loadBarChart() {
+    await pastikanChart();
     const now = new Date();
     const awal = isoLokal(new Date(now.getFullYear(), now.getMonth() - 5, 1));
 
@@ -100,6 +118,7 @@
 
   // ---------- Grafik donat: saldo di kas vs sedang dipinjam ----------
   async function loadDonut(r) {
+    await pastikanChart();
     const totalTabungan = r ? r.totalTabungan : 0;
     const sisaHutang = r ? r.sisaHutang : 0;
     new Chart(document.getElementById("chartDonut"), {

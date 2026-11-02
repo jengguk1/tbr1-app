@@ -55,9 +55,6 @@
     @page { size: A4; margin: 12mm; }
   }
 </style>
-<script src="assets/vendor/supabase.js"></script>
-<script src="assets/js/supabase-client.js"></script>
-<script src="assets/js/layout.js"></script>
 </head>
 <body>
 
@@ -118,6 +115,10 @@
     </div>
   </div>
 
+<script src="assets/js/boot.js"></script>
+<script src="assets/vendor/supabase.js"></script>
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/layout.js"></script>
 <script>
   infoSekolah().then(info => {
     document.getElementById("kopNama").textContent = info.nama_sekolah;

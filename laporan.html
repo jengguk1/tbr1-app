@@ -9,7 +9,6 @@
 <meta name="theme-color" content="#0b1e42">
 <title>Laporan — Tabungan SDN TAMBERU 1</title>
 <link rel="stylesheet" href="assets/css/style.css">
-<script src="assets/vendor/supabase.js"></script>
 </head>
 <body>
 <div class="app-shell">
@@ -79,22 +78,22 @@
       <!-- Ringkasan -->
       <div class="stat-grid">
         <div class="stat-card">
-          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-catatan.png" alt=""></div><div class="stat-label">Saldo Awal</div></div>
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-catatan.webp" alt=""></div><div class="stat-label">Saldo Awal</div></div>
           <div class="stat-value" id="lapSaldoAwal">Rp 0</div>
           <div class="stat-sub" id="lapSaldoAwalSub">Awal pencatatan</div>
         </div>
         <div class="stat-card">
-          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-tabungan.png" alt=""></div><div class="stat-label">Total Pemasukan</div></div>
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-tabungan.webp" alt=""></div><div class="stat-label">Total Pemasukan</div></div>
           <div class="stat-value amt-in" id="lapMasuk">Rp 0</div>
           <div class="stat-sub" id="lapMasukSub">0 kali setoran</div>
         </div>
         <div class="stat-card">
-          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-transaksi.png" alt=""></div><div class="stat-label">Total Penarikan</div></div>
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-transaksi.webp" alt=""></div><div class="stat-label">Total Penarikan</div></div>
           <div class="stat-value amt-out" id="lapKeluar">Rp 0</div>
           <div class="stat-sub" id="lapKeluarSub">0 kali penarikan</div>
         </div>
         <div class="stat-card">
-          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-laporan.png" alt=""></div><div class="stat-label">Saldo Akhir</div></div>
+          <div class="stat-top"><div class="stat-icon"><img src="assets/img/icon-laporan.webp" alt=""></div><div class="stat-label">Saldo Akhir</div></div>
           <div class="stat-value" id="lapSaldoAkhir">Rp 0</div>
           <div class="stat-sub">Saldo Awal + Pemasukan − Penarikan</div>
         </div>
@@ -115,6 +114,8 @@
     </main>
   </div>
 </div>
+<script src="assets/js/boot.js"></script>
+<script src="assets/vendor/supabase.js"></script>
 <script src="assets/js/supabase-client.js"></script>
 <script src="assets/js/layout.js"></script>
 <script src="assets/js/laporan.js"></script>
