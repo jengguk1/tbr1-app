@@ -20,6 +20,7 @@ tbr1-app/
 ├── pengaturan.html      -> Profil saya + Manajemen Akun (admin)
 ├── surat-pinjaman.html  -> Surat Pernyataan Peminjaman (dibuka dari tombol "Cetak Surat")
 ├── kwitansi.html        -> Kwitansi Penarikan / Penyerahan Kelulusan (dibuka dari tombol "Cetak Kwitansi")
+├── cek.html             -> Penguji koneksi (WiFi vs paket data): menguji internet umum, situs aplikasi, server data, situs luar; ada tabel perbandingan & tombol salin laporan. Dibuka dari link "Cek koneksi" di halaman login/Bantuan atau PINTASAN ikon aplikasi (tekan lama ikon)
 ├── bantuan.html         -> Halaman Bantuan (penjelasan tiap menu)
 ├── assets/js/boot.js    -> Pesan "sinyal lambat, masih dimuat" (dimuat paling awal)
 ├── assets/vendor/       -> Library & font disimpan DI DALAM aplikasi (supabase.js, chart.umd.min.js, font Poppins) — tidak lagi bergantung pada jsdelivr/Google Fonts
@@ -160,6 +161,7 @@ Lalu buka `http://localhost:8080` di browser.
 - [x] Tabungan (catat setor/tarik, saldo per siswa, riwayat + **ubah**/hapus) — **sudah terhubung ke data asli**
 - [x] Tata letak HP ("mode HP"): menu jadi bar navigasi bawah mengambang (seperti aplikasi HP pada umumnya), chip nama/Bantuan/Keluar pindah ke pojok kanan atas, halaman jadi lebih lega di layar sempit
 - [x] Perbaikan "macet di logo dompet saat pakai paket data": semua file luar (supabase-js, Chart.js, font Poppins) kini dihosting di dalam aplikasi (assets/vendor), service worker v3 memberi batas tunggu 6 dtk lalu memakai salinan tersimpan, menu tampil lebih dulu sebelum data, dan muncul pesan jelas kalau server data tidak terjangkau dalam 12 dtk
+- [x] Cek Koneksi (cek.html): alat uji mandiri untuk mencari bagian mana yang tidak jalan di WiFi/paket data, bisa dijalankan DI DALAM aplikasi terpasang lewat pintasan ikon (manifest shortcuts); start_url aplikasi diubah ke "./" (akar situs, tanpa pengalihan .html)
 - [x] Percepatan untuk sinyal lambat (diukur di jaringan tiruan 50 KB/dtk): library besar (supabase.js, Chart.js) dipindah ke akhir halaman sehingga halaman mulai tampil lebih dulu (Beranda 14,3 → 2,0 dtk; login 6,6 → 1,9 dtk), Chart.js baru dimuat saat grafik digambar, semua gambar dikonversi ke WebP (1.014 KB → 152 KB), service worker v6 menyimpan permanen library & font (tidak diunduh ulang) serta menyimpan potongan menu supaya tetap muncul saat sinyal buruk/offline, ada pesan "sinyal lambat — masih dimuat" bila >15 dtk
 - [x] Tabungan: ketuk nama siswa di "Saldo per Siswa" → Riwayat menampilkan SEMUA transaksi siswa itu (lengkap Ubah/Hapus/Kwitansi, plus ringkasan jumlah transaksi & saldo); ketuk lagi atau tombol "Tampilkan semua siswa" untuk kembali ke tampilan biasa
 - [x] Beranda dirapikan: Aksi Cepat naik jadi satu baris tepat di bawah kartu ringkasan (terlihat tanpa scroll), grafik batang & donat dibuat bertinggi tetap dan donat diperkecil; halaman di HP tidak lagi melebar keluar layar (tabel panjang bergeser di dalam panelnya sendiri), tombol aksi di tabel boleh turun baris, dan tulisan Bantuan · Keluar jadi satu baris

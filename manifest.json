@@ -2,15 +2,45 @@
   "name": "Tabungan SDN TAMBERU 1",
   "short_name": "Tabungan",
   "description": "Aplikasi manajemen tabungan dan buku catatan SDN TAMBERU 1",
-  "start_url": "./dashboard.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f3f6fc",
   "theme_color": "#0b1e42",
   "orientation": "portrait-primary",
   "icons": [
-    { "src": "assets/img/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "assets/img/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "assets/img/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "assets/img/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/img/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/img/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Cek Koneksi",
+      "short_name": "Cek Koneksi",
+      "description": "Periksa bagian mana yang tidak jalan (WiFi / paket data)",
+      "url": "./cek.html",
+      "icons": [
+        {
+          "src": "assets/img/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }

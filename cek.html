@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1e42">
+<title>Cek Koneksi — Tabungan SDN TAMBERU 1</title>
+<!-- Halaman ini SENGAJA mandiri (CSS & JS di dalam, tanpa file luar) supaya tetap bisa terbuka
+     walau jaringan sedang buruk — fungsinya mencari bagian mana yang tidak jalan. -->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f3f6fc; color: #16233f; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 14px; line-height: 1.5; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 16px 14px 40px; }
+  h1 { font-size: 20px; margin: 4px 0 2px; }
+  h2 { font-size: 14px; margin: 0 0 8px; }
+  .sub { color: #6b7893; font-size: 12.5px; margin: 0 0 14px; }
+  .card { background: #fff; border: 1px solid #e6ebf5; border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(15,35,90,.06); }
+  label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 4px; }
+  select { width: 100%; padding: 10px; border: 1px solid #e6ebf5; border-radius: 10px; font-size: 14px; background: #f8faff; margin-bottom: 10px; }
+  .tombol { display: flex; flex-wrap: wrap; gap: 8px; }
+  button { border: none; border-radius: 10px; padding: 11px 16px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .utama { background: linear-gradient(135deg, #2e7cf6, #1a5fd0); color: #fff; flex: 1 1 100%; }
+  .biasa { background: #eef2fb; color: #16233f; flex: 1 1 auto; }
+  button:disabled { opacity: .55; }
+  .info .baris { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; border-bottom: 1px dashed #e6ebf5; font-size: 12.5px; }
+  .info .baris:last-child { border-bottom: none; }
+  .info .baris span:first-child { color: #6b7893; }
+  .info .baris span:last-child { text-align: right; font-weight: 600; word-break: break-word; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li.tes { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid #eef2fb; align-items: flex-start; }
+  li.tes:last-child { border-bottom: none; }
+  .ikon { font-size: 18px; line-height: 1.3; width: 24px; text-align: center; flex-shrink: 0; }
+  .nama { font-weight: 600; font-size: 13px; }
+  .rinci { font-size: 12px; color: #6b7893; word-break: break-word; }
+  .kesimpulan { font-size: 13.5px; }
+  .k-ok { background: #e7f8ee; border-color: #bfe8cf; } .k-lambat { background: #fff8e6; border-color: #f3dfa0; } .k-gagal { background: #fdeaea; border-color: #f4c3c3; }
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  th, td { padding: 6px 4px; border-bottom: 1px solid #eef2fb; text-align: center; vertical-align: top; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: #6b7893; font-weight: 600; font-size: 11px; }
+  .gulir { overflow-x: auto; }
+  pre { background: #0b1e42; color: #dfe9ff; border-radius: 12px; padding: 12px; font-size: 11.5px; white-space: pre-wrap; word-break: break-word; margin: 0; }
+  a { color: #1a5fd0; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #0b1e42; color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.tampil { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔧 Cek Koneksi</h1>
+  <p class="sub">Mencari bagian mana yang tidak jalan. Jalankan sekali saat memakai <b>WiFi</b> dan sekali saat memakai <b>paket data</b>, lalu lihat tabel perbandingannya di bawah.</p>
+
+  <div class="card">
+    <label for="label">Saat ini saya memakai:</label>
+    <select id="label">
+      <option value="WiFi">WiFi</option>
+      <option value="Paket data">Paket data</option>
+      <option value="Tidak tahu">Tidak tahu</option>
+    </select>
+    <div class="tombol">
+      <button class="utama" id="btnMulai">▶ Mulai tes</button>
+      <button class="biasa" id="btnSalin" disabled>📋 Salin laporan</button>
+      <button class="biasa" id="btnWa" disabled>💬 Kirim lewat WhatsApp</button>
+    </div>
+  </div>
+
+  <div class="card" id="kotakKesimpulan" style="display:none;"><h2>Kesimpulan</h2><div class="kesimpulan" id="kesimpulan"></div></div>
+
+  <div class="card"><h2>Hasil tes</h2><ul id="hasil"><li class="rinci">Ketuk “Mulai tes”. Tes berjalan satu per satu dan butuh sekitar 10–60 detik.</li></ul></div>
+
+  <div class="card info"><h2>Keadaan perangkat</h2><div id="info"></div></div>
+
+  <div class="card">
+    <h2>Perbandingan hasil terakhir</h2>
+    <div class="gulir" id="banding"><span class="rinci">Belum ada hasil tersimpan.</span></div>
+    <div class="tombol" style="margin-top:10px;"><button class="biasa" id="btnHapus">🗑️ Hapus riwayat</button></div>
+  </div>
+
+  <div class="card" id="kotakLaporan" style="display:none;"><h2>Laporan (untuk dikirim)</h2><pre id="laporan"></pre></div>
+
+  <p><a href="index.html">← Kembali ke aplikasi</a></p>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  var SUPABASE_URL = "https://kpgzdnpbhvfstrrdjwum.supabase.co";
+  var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtwZ3pkbnBiaHZmc3RycmRqd3VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAzNjc1NjEsImV4cCI6MjEwNTk0MzU2MX0.Av2zKSRIWMx5pVKNBaplF--bpWQ9cL64T5oLeKLQejA";
+  var KUNCI_RIWAYAT = "cek_riwayat_v1";
+  var KUNCI_SESI = "sb-kpgzdnpbhvfstrrdjwum-auth-token";
+  var LAMBAT_MS = 5000;
+  var $ = function (id) { return document.getElementById(id); };
+  var q = Date.now();
+  var laporanTerakhir = "";
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); }
+  function toast(t) { var e = $("toast"); e.textContent = t; e.className = "toast tampil"; setTimeout(function () { e.className = "toast"; }, 2200); }
+
+  // ---------- Keadaan perangkat ----------
+  var standalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
+  var bukaLewat = standalone ? "Aplikasi terpasang" : "Chrome / browser biasa";
+  function infoBaris() {
+    var c = navigator.connection || {};
+    var ua = navigator.userAgent || "";
+    var chrome = (ua.match(/Chrome\/([\d.]+)/) || [])[1] || "-";
+    var android = (ua.match(/Android ([\d.]+)/) || [])[1] || "-";
+    return [
+      ["Dibuka lewat", bukaLewat],
+      ["Status online (kata perangkat)", navigator.onLine ? "ya" : "TIDAK"],
+      ["Jenis jaringan (kata Chrome)", (c.type || "tidak dilaporkan") + (c.effectiveType ? " · " + c.effectiveType : "")],
+      ["Perkiraan kecepatan / tunda", (c.downlink != null ? c.downlink + " Mbps" : "-") + " / " + (c.rtt != null ? c.rtt + " ms" : "-")],
+      ["Mode hemat data", c.saveData ? "AKTIF" : "tidak"],
+      ["Service worker", ("serviceWorker" in navigator) ? (navigator.serviceWorker.controller ? "aktif & mengendalikan halaman" : "belum mengendalikan halaman") : "tidak didukung"],
+      ["Chrome / Android", chrome + " / " + android],
+      ["Layar", innerWidth + "×" + innerHeight + " @" + (window.devicePixelRatio || 1) + "x"],
+      ["Alamat", location.host]
+    ];
+  }
+  function tampilInfo() {
+    $("info").innerHTML = infoBaris().map(function (r) { return "<div class=\"baris\"><span>" + esc(r[0]) + "</span><span>" + esc(r[1]) + "</span></div>"; }).join("");
+  }
+  // tebak label awal dari jenis jaringan, kalau Chrome melaporkannya
+  (function () { var t = (navigator.connection || {}).type; if (t === "wifi") $("label").value = "WiFi"; else if (t === "cellular") $("label").value = "Paket data"; })();
+  tampilInfo();
+
+  // ---------- Alat pengukur ----------
+  function ambil(url, o) {
+    o = o || {};
+    var ctl = new AbortController(), t0 = performance.now();
+    var batas = o.batas || 12000;
+    var timer = setTimeout(function () { ctl.abort(); }, batas);
+    var opsi = { cache: "no-store", signal: ctl.signal };
+    if (o.nocors) opsi.mode = "no-cors";
+    if (o.headers) opsi.headers = o.headers;
+    return fetch(url, opsi).then(function (resp) {
+      var siap = o.baca ? resp.arrayBuffer().then(function (b) { return { resp: resp, bytes: b.byteLength }; })
+                        : Promise.resolve({ resp: resp, bytes: null });
+      return siap.then(function (r) {
+        clearTimeout(timer);
+        var ok = r.resp.type === "opaque" || r.resp.ok;
+        return { ok: ok, status: r.resp.type === "opaque" ? "terjangkau" : r.resp.status, ms: performance.now() - t0, bytes: r.bytes };
+      });
+    }).catch(function (e) {
+      clearTimeout(timer);
+      return { ok: false, status: 0, ms: performance.now() - t0,
+               error: e && e.name === "AbortError" ? "habis waktu (" + Math.round(batas / 1000) + " dtk)" : ((e && e.message) || String(e)) };
+    });
+  }
+  function kelas(r) { return !r.ok ? "gagal" : (r.ms > LAMBAT_MS ? "lambat" : "ok"); }
+  function rinci(r, t) {
+    if (!r.ok) return (r.error ? r.error : "HTTP " + r.status) + " · " + Math.round(r.ms) + " ms";
+    var s = Math.round(r.ms) + " ms";
+    if (r.bytes) s += " · " + Math.round(r.bytes / 1024) + " KB · ±" + Math.round((r.bytes / 1024) / (r.ms / 1000)) + " KB/dtk";
+    if (t && t.catatan) s += " · " + t.catatan(r);
+    return s;
+  }
+
+  var HDR = { apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY };
+  var TES = [
+    { id: "umum", grup: "Internet umum", nama: "Internet umum (google.com)", jalan: function () { return ambil("https://www.google.com/generate_204", { nocors: true, batas: 8000 }); } },
+    { id: "s1", grup: "Situs aplikasi", nama: "Situs aplikasi — file kecil (manifest)", jalan: function () { return ambil("manifest.json?cek=" + q); } },
+    { id: "s2", grup: "Situs aplikasi", nama: "Situs aplikasi — halaman login", jalan: function () { return ambil("index.html?cek=" + q, { baca: true }); } },
+    { id: "s3", grup: "Situs aplikasi", nama: "Situs aplikasi — file besar (supabase.js ±210 KB)", jalan: function () { return ambil("assets/vendor/supabase.js?cek=" + q, { baca: true, batas: 25000 }); } },
+    { id: "s4", grup: "Situs aplikasi", nama: "Situs aplikasi — gambar banner", jalan: function () { return ambil("assets/img/header-banner.webp?cek=" + q, { baca: true }); } },
+    { id: "d1", grup: "Server data", nama: "Server data (Supabase) — kesehatan", jalan: function () { return ambil(SUPABASE_URL + "/auth/v1/health", { headers: HDR }); } },
+    { id: "d2", grup: "Server data", nama: "Server data (Supabase) — baca info sekolah", jalan: function () { return ambil(SUPABASE_URL + "/rest/v1/pengaturan?select=nama_sekolah&limit=1", { headers: HDR, baca: true }); } },
+    { id: "x1", grup: "Situs luar", nama: "Situs luar — jsdelivr (dulu dipakai aplikasi)", jalan: function () { return ambil("https://cdn.jsdelivr.net/npm/chart.js@4/package.json", { nocors: true, batas: 8000 }); } },
+    { id: "x2", grup: "Situs luar", nama: "Situs luar — Google Fonts (dulu dipakai aplikasi)", jalan: function () { return ambil("https://fonts.googleapis.com/", { nocors: true, batas: 8000 }); } }
+  ];
+
+  function tesSesi() {
+    try {
+      var raw = localStorage.getItem(KUNCI_SESI);
+      if (!raw) return { ok: true, info: true, teks: "Belum login di perangkat/mode ini (wajar kalau belum pernah login di sini)" };
+      var s = JSON.parse(raw), sisa = s.expires_at ? Math.round(s.expires_at - Date.now() / 1000) : null;
+      return { ok: true, info: true, teks: "Ada sesi login tersimpan" + (sisa != null ? (sisa > 0 ? " (berlaku ±" + Math.round(sisa / 60) + " menit lagi, diperpanjang otomatis)" : " (kedaluwarsa, akan diperpanjang saat online)") : "") };
+    } catch (e) { return { ok: false, info: true, teks: "Gagal membaca penyimpanan perangkat: " + e.message }; }
+  }
+
+  // ---------- Jalankan ----------
+  var berjalan = false;
+  function ikon(k) { return k === "ok" ? "✅" : k === "lambat" ? "🐢" : k === "gagal" ? "❌" : k === "info" ? "ℹ️" : "⏳"; }
+  function baris(id, nama, k, teks) {
+    var el = $("t_" + id);
+    if (!el) { el = document.createElement("li"); el.className = "tes"; el.id = "t_" + id; $("hasil").appendChild(el); }
+    el.innerHTML = '<div class="ikon">' + ikon(k) + '</div><div><div class="nama">' + esc(nama) + '</div><div class="rinci">' + esc(teks) + '</div></div>';
+  }
+
+  function mulai() {
+    if (berjalan) return;
+    berjalan = true; q = Date.now();
+    $("btnMulai").disabled = true; $("btnMulai").textContent = "⏳ Sedang mengetes…";
+    $("btnSalin").disabled = true; $("btnWa").disabled = true;
+    $("kotakKesimpulan").style.display = "none"; $("kotakLaporan").style.display = "none";
+    $("hasil").innerHTML = ""; tampilInfo();
+    var hasil = {};
+    var sesi = tesSesi(); baris("sesi", "Login tersimpan di perangkat", sesi.ok ? "info" : "gagal", sesi.teks);
+
+    var i = 0;
+    (function langkah() {
+      if (i >= TES.length) return selesai(hasil, sesi);
+      var t = TES[i++];
+      baris(t.id, t.nama, "tunggu", "sedang dites…");
+      t.jalan().then(function (r) {
+        hasil[t.id] = { k: kelas(r), ms: Math.round(r.ms), r: r };
+        var teks = rinci(r, t);
+        if (t.id === "d2" && r.ok === false && r.status === 401) teks += " (ditolak izin — bukan masalah jaringan)";
+        baris(t.id, t.nama, hasil[t.id].k, teks);
+        langkah();
+      });
+    })();
+  }
+
+  function selesai(hasil, sesi) {
+    var g = function (id) { return hasil[id] ? hasil[id].k : "gagal"; };
+    var situs = ["s1", "s2", "s3", "s4"].filter(function (id) { return g(id) === "gagal"; });
+    var data = ["d1", "d2"].filter(function (id) { return g(id) === "gagal"; });
+    var lambat = Object.keys(hasil).filter(function (id) { return hasil[id].k === "lambat"; });
+    var k, pesan;
+    if (g("umum") === "gagal" && situs.length === 4 && data.length === 2) {
+      k = "gagal"; pesan = "<b>Tidak ada koneksi sama sekali</b> dari mode ini. Periksa sinyal, kuota paket data, atau izin data seluler untuk aplikasi ini (Pengaturan HP → Aplikasi → Tabungan → Penggunaan data).";
+    } else if (situs.length) {
+      k = "gagal"; pesan = "<b>Situs aplikasi tidak terjangkau</b> dari jaringan ini (bagian: " + situs.join(", ") + "). Ini masalah jalur jaringan ke " + esc(location.host) + ", bukan kode aplikasi.";
+    } else if (data.length) {
+      k = "gagal"; pesan = "<b>Server data (Supabase) tidak terjangkau</b> dari jaringan ini. Halaman aplikasi bisa terbuka, tetapi data/login tidak akan jalan.";
+    } else if (lambat.length) {
+      k = "lambat"; pesan = "<b>Semua jalur terjangkau, tetapi lambat</b> (bagian: " + lambat.join(", ") + "). Aplikasi akan terasa berat; sinyal/kuota perlu diperiksa.";
+    } else {
+      k = "ok"; pesan = "<b>Semua jalur normal ✅.</b> Kalau aplikasi tetap macet di logo padahal tes ini hijau, kirim laporan ini (sertakan apakah tes dijalankan lewat <i>aplikasi terpasang</i> atau <i>Chrome biasa</i>).";
+    }
+    var kot = $("kotakKesimpulan"); kot.style.display = "block"; kot.className = "card k-" + k;
+    $("kesimpulan").innerHTML = pesan;
+
+    // laporan teks
+    var L = [];
+    L.push("LAPORAN CEK KONEKSI — " + new Date().toLocaleString("id-ID"));
+    L.push("Memakai: " + $("label").value + " | Dibuka lewat: " + bukaLewat);
+    infoBaris().forEach(function (r) { L.push("- " + r[0] + ": " + r[1]); });
+    L.push("- Login tersimpan: " + sesi.teks);
+    L.push("");
+    TES.forEach(function (t) {
+      var h = hasil[t.id]; if (!h) return;
+      L.push("[" + (h.k === "ok" ? "OK" : h.k === "lambat" ? "LAMBAT" : "GAGAL") + "] " + t.nama + " — " + rinci(h.r, t));
+    });
+    L.push(""); L.push("KESIMPULAN: " + pesan.replace(/<[^>]+>/g, ""));
+    laporanTerakhir = L.join("\n");
+    $("laporan").textContent = laporanTerakhir; $("kotakLaporan").style.display = "block";
+
+    // simpan ke riwayat
+    try {
+      var rw = JSON.parse(localStorage.getItem(KUNCI_RIWAYAT) || "[]");
+      var ringkas = {}; Object.keys(hasil).forEach(function (id) { ringkas[id] = { k: hasil[id].k, ms: hasil[id].ms }; });
+      rw.push({ waktu: Date.now(), label: $("label").value, lewat: bukaLewat, hasil: ringkas });
+      localStorage.setItem(KUNCI_RIWAYAT, JSON.stringify(rw.slice(-6)));
+    } catch (e) {}
+    tampilBanding();
+    berjalan = false;
+    $("btnMulai").disabled = false; $("btnMulai").textContent = "🔄 Ulangi tes";
+    $("btnSalin").disabled = false; $("btnWa").disabled = false;
+  }
+
+  function tampilBanding() {
+    var rw = []; try { rw = JSON.parse(localStorage.getItem(KUNCI_RIWAYAT) || "[]"); } catch (e) {}
+    rw = rw.slice(-4);
+    if (!rw.length) { $("banding").innerHTML = '<span class="rinci">Belum ada hasil tersimpan.</span>'; return; }
+    var h = "<table><tr><th>Tes</th>" + rw.map(function (r) {
+      var d = new Date(r.waktu);
+      return "<th>" + esc(r.label) + "<br>" + esc(r.lewat === "Aplikasi terpasang" ? "App" : "Chrome") + "<br>" + d.getHours() + ":" + ("0" + d.getMinutes()).slice(-2) + "</th>";
+    }).join("") + "</tr>";
+    TES.forEach(function (t) {
+      h += "<tr><td>" + esc(t.nama.replace(/^(Situs aplikasi|Server data \(Supabase\)|Situs luar|Internet umum) — ?/, "$1: ")) + "</td>" + rw.map(function (r) {
+        var x = r.hasil[t.id]; return "<td>" + (x ? ikon(x.k) + "<br>" + x.ms + "ms" : "-") + "</td>";
+      }).join("") + "</tr>";
+    });
+    $("banding").innerHTML = h + "</table>";
+  }
+
+  function salin() {
+    if (!laporanTerakhir) return;
+    var selesaiSalin = function () { toast("Laporan tersalin ✔"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(laporanTerakhir).then(selesaiSalin, function () { salinCadangan(); });
+    } else salinCadangan();
+    function salinCadangan() {
+      var ta = document.createElement("textarea"); ta.value = laporanTerakhir; document.body.appendChild(ta);
+      ta.select(); try { document.execCommand("copy"); selesaiSalin(); } catch (e) { toast("Tekan lama teks laporan lalu pilih Salin"); }
+      ta.remove();
+    }
+  }
+
+  $("btnMulai").addEventListener("click", mulai);
+  $("btnSalin").addEventListener("click", salin);
+  $("btnWa").addEventListener("click", function () { if (laporanTerakhir) window.open("https://wa.me/?text=" + encodeURIComponent(laporanTerakhir), "_blank"); });
+  $("btnHapus").addEventListener("click", function () { try { localStorage.removeItem(KUNCI_RIWAYAT); } catch (e) {} tampilBanding(); toast("Riwayat dihapus"); });
+  tampilBanding();
+})();
+</script>
+</body>
+</html>

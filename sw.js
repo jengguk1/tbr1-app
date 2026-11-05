@@ -10,9 +10,9 @@
 // TIDAK PERNAH menyimpan data Supabase — hanya file dari domain situs ini.
 //
 // ATURAN: setiap kali isi file ini diubah ATAU file di assets/vendor diganti dengan
-// versi lain, naikkan CACHE_NAME (v6 -> v7, dst.) supaya cache lama dibuang.
+// versi lain, naikkan CACHE_NAME (v7 -> v8, dst.) supaya cache lama dibuang.
 // ============================================================
-const CACHE_NAME = "tbr1-shell-v6";
+const CACHE_NAME = "tbr1-shell-v7";
 // termasuk .html (potongan menu di partials/) dan .json (manifest) supaya menu tetap tampil saat sinyal buruk
 const ASSET_PATTERN = /\.(?:css|js|png|jpg|jpeg|webp|svg|woff2?|html|json)$/;
 const BATAS_TUNGGU_MS = 4000;
@@ -65,6 +65,7 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // jangan sentuh permintaan ke Supabase dsb.
+  if (url.searchParams.has("cek")) return;         // permintaan dari halaman cek.html: biarkan langsung ke jaringan
 
   if (url.pathname.includes("/assets/vendor/")) {
     event.respondWith(cacheDulu(req));
