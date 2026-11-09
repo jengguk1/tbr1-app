@@ -99,8 +99,9 @@ function tampilkanBannerKoneksi() {
   d.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:300;background:#fff3cd;color:#664d03;" +
     "padding:10px 14px;font-size:13px;line-height:1.5;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.25);";
   d.innerHTML = "⚠️ Belum bisa terhubung ke server data. Kalau memakai paket data, coba pindah ke WiFi atau " +
-    "jaringan lain. <button type='button' onclick='location.reload()' style='margin-left:8px;padding:4px 10px;" +
+    "jaringan lain. <button type='button' style='margin-left:8px;padding:4px 10px;" +
     "border:1px solid #664d03;border-radius:6px;background:#fff;cursor:pointer;font-size:12px;'>Muat ulang</button>";
+  d.querySelector("button").addEventListener("click", () => location.reload());
   document.body.appendChild(d);
 }
 function sembunyikanBannerKoneksi() {
@@ -154,6 +155,18 @@ async function fetchAll(buildQuery, pageSize = 1000) {
 }
 
 // Amankan teks dari input pengguna sebelum disisipkan ke innerHTML
+// Sel CSV yang aman dibuka di Excel/Sheets:
+//  - pembatas ; tanda kutip dan baris baru di dalam sel dikutip dengan benar;
+//  - TEKS yang diawali = + - @ (atau tab/CR) diberi apostrof di depan, supaya tidak dijalankan
+//    sebagai RUMUS (celah "CSV injection": mis. keterangan =HYPERLINK(...) buatan akun lain);
+//  - angka murni (termasuk negatif, mis. -5000) dibiarkan apa adanya agar tetap terbaca sebagai angka.
+function csvAman(v) {
+  let s = String(v === null || v === undefined ? "" : v);
+  const angkaMurni = typeof v === "number" || /^-?\d+([.,]\d+)?$/.test(s);
+  if (!angkaMurni && s !== "-" && /^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  return /[";\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
 function esc(v) {
   return String(v ?? "").replace(/[&<>"']/g, c => (
     { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]

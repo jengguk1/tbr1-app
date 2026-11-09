@@ -229,10 +229,7 @@ function renderTransaksi() {
 }
 
 // ---------- Unduh CSV (bisa dibuka di Excel) ----------
-function csvSel(v) {
-  const s = String(v === null || v === undefined ? "" : v);
-  return /[";\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
+function csvSel(v) { return csvAman(v); }
 function unduhCsvTransaksi() {
   const baris = [trxCsv.header, ...trxCsv.rows];
   if (trxCsv.footer) baris.push(trxCsv.footer);

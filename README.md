@@ -42,11 +42,12 @@ tbr1-app/
     ├── 04_cicilan.sql      -> Migrasi: riwayat tiap cicilan pinjaman (tabel pembayaran_hutang)
     ├── 05_audit_log.sql    -> Migrasi: jejak siapa menghapus apa (tabel audit_log)
     └── 06_pengaturan_publik.sql -> Migrasi: info sekolah boleh dibaca publik (perlu utk halaman login)
+- `supabase/07_keamanan.sql` — **pengerasan keamanan (WAJIB dijalankan)**: kunci fungsi, tolak orang tanpa login, nama pelaku log/petugas diisi server. Aman diulang.
 ```
 
 ## Langkah 1 — Siapkan database di Supabase
 
-1. Masuk ke [supabase.com](https://supabase.com) dengan akun **masraji03@gmail.com**,
+1. Masuk ke [supabase.com](https://supabase.com) dengan akun Supabase milik pengelola aplikasi,
    buka project Anda (ref: `kpgzdnpbhvfstrrdjwum`).
 2. Buka menu **SQL Editor → New query**, salin seluruh isi file
    `supabase/schema.sql`, lalu klik **Run**. Ini akan membuat semua tabel
@@ -161,6 +162,8 @@ Lalu buka `http://localhost:8080` di browser.
 - [x] Tabungan (catat setor/tarik, saldo per siswa, riwayat + **ubah**/hapus) — **sudah terhubung ke data asli**
 - [x] Tata letak HP ("mode HP"): menu jadi bar navigasi bawah mengambang (seperti aplikasi HP pada umumnya), chip nama/Bantuan/Keluar pindah ke pojok kanan atas, halaman jadi lebih lega di layar sempit
 - [x] Perbaikan "macet di logo dompet saat pakai paket data": semua file luar (supabase-js, Chart.js, font Poppins) kini dihosting di dalam aplikasi (assets/vendor), service worker v3 memberi batas tunggu 6 dtk lalu memakai salinan tersimpan, menu tampil lebih dulu sebelum data, dan muncul pesan jelas kalau server data tidak terjangkau dalam 12 dtk
+- [x] Pilihan alamat hosting: aplikasi sudah diuji berjalan di akar situs (Cloudflare) MAUPUN di subfolder (GitHub Pages: https://<akun>.github.io/tbr1-app/). Penyebab macet di paket data XL = alamat *.workers.dev diblokir/diabaikan operator, bukan kode. Tautan reset password kini dibangun relatif terhadap alamat halaman, jadi aman di alamat mana pun; alamat baru perlu ditambahkan ke Supabase → Authentication → URL Configuration → Redirect URLs.
+- [x] Keamanan: aturan akses database diuji di PostgreSQL sungguhan (65 skenario) dan diperkuat lewat 07_keamanan.sql; CSP ketat (tidak ada kode tertanam di halaman); unduhan CSV aman dari rumus; pencegahan penyisipan kode (esc/textContent) diuji dengan kolom penuh kode serangan; password minimal 8; admin kini melihat email tiap akun di Pengaturan → Daftar Akun. Lihat **KEAMANAN.md** untuk panduan & checklist pemilik akun.
 - [x] Cek Koneksi (cek.html): alat uji mandiri untuk mencari bagian mana yang tidak jalan di WiFi/paket data, bisa dijalankan DI DALAM aplikasi terpasang lewat pintasan ikon (manifest shortcuts); start_url aplikasi diubah ke "./" (akar situs, tanpa pengalihan .html)
 - [x] Percepatan untuk sinyal lambat (diukur di jaringan tiruan 50 KB/dtk): library besar (supabase.js, Chart.js) dipindah ke akhir halaman sehingga halaman mulai tampil lebih dulu (Beranda 14,3 → 2,0 dtk; login 6,6 → 1,9 dtk), Chart.js baru dimuat saat grafik digambar, semua gambar dikonversi ke WebP (1.014 KB → 152 KB), service worker v6 menyimpan permanen library & font (tidak diunduh ulang) serta menyimpan potongan menu supaya tetap muncul saat sinyal buruk/offline, ada pesan "sinyal lambat — masih dimuat" bila >15 dtk
 - [x] Tabungan: ketuk nama siswa di "Saldo per Siswa" → Riwayat menampilkan SEMUA transaksi siswa itu (lengkap Ubah/Hapus/Kwitansi, plus ringkasan jumlah transaksi & saldo); ketuk lagi atau tombol "Tampilkan semua siswa" untuk kembali ke tampilan biasa

@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://kpgzdnpbhvfstrrdjwum.supabase.co wss://kpgzdnpbhvfstrrdjwum.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="assets/img/icons/favicon-64.png">
@@ -42,14 +43,14 @@
             <div class="field">
               <label for="pPass1">Password Baru</label>
               <div class="pass-wrap">
-                <input type="password" id="pPass1" placeholder="Minimal 6 karakter" minlength="6" required>
+                <input type="password" id="pPass1" placeholder="Minimal 8 karakter" minlength="8" required>
                 <button type="button" class="pass-toggle" data-target="pPass1">👁</button>
               </div>
             </div>
             <div class="field">
               <label for="pPass2">Ulangi Password Baru</label>
               <div class="pass-wrap">
-                <input type="password" id="pPass2" placeholder="Ketik ulang password baru" minlength="6" required>
+                <input type="password" id="pPass2" placeholder="Ketik ulang password baru" minlength="8" required>
                 <button type="button" class="pass-toggle" data-target="pPass2">👁</button>
               </div>
             </div>
@@ -130,14 +131,14 @@
               <div class="field">
                 <label for="fPass">Password</label>
                 <div class="pass-wrap">
-                  <input type="password" id="fPass" placeholder="Minimal 6 karakter" minlength="6" required>
+                  <input type="password" id="fPass" placeholder="Minimal 8 karakter" minlength="8" required>
                   <button type="button" class="pass-toggle" data-target="fPass">👁</button>
                 </div>
               </div>
               <div class="field">
                 <label for="fPass2">Ulangi Password</label>
                 <div class="pass-wrap">
-                  <input type="password" id="fPass2" placeholder="Ketik ulang password" minlength="6" required>
+                  <input type="password" id="fPass2" placeholder="Ketik ulang password" minlength="8" required>
                   <button type="button" class="pass-toggle" data-target="fPass2">👁</button>
                 </div>
               </div>
@@ -185,6 +186,6 @@
 <script src="assets/js/supabase-client.js"></script>
 <script src="assets/js/layout.js"></script>
 <script src="assets/js/pengaturan.js"></script>
-<script>initLayout("pengaturan", "Pengaturan").then(() => initPengaturanPage());</script>
+<script src="assets/js/mulai-pengaturan.js"></script>
 </body>
 </html>

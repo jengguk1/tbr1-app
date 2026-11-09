@@ -35,7 +35,7 @@ async function initPengaturanPage() {
     const p1 = document.getElementById("pPass1").value;
     const p2 = document.getElementById("pPass2").value;
     if (p1 !== p2) { showMsg("Password baru dan ulangi password tidak sama.", "error"); return; }
-    if (p1.length < 6) { showMsg("Password minimal 6 karakter.", "error"); return; }
+    if (p1.length < 8) { showMsg("Password minimal 8 karakter.", "error"); return; }
 
     btn.disabled = true;
     btn.textContent = "Menyimpan...";
@@ -85,8 +85,8 @@ async function initPengaturanPage() {
       showMsg("Password dan ulangi password tidak sama.", "error");
       return;
     }
-    if (pass.length < 6) {
-      showMsg("Password minimal 6 karakter.", "error");
+    if (pass.length < 8) {
+      showMsg("Password minimal 8 karakter.", "error");
       return;
     }
 
@@ -136,19 +136,23 @@ async function muatDaftarAkun() {
     return;
   }
 
+  // Tiap akun = 2 baris: data akun, lalu email selebar tabel (supaya terbaca penuh di layar HP).
   tbody.innerHTML = data.map(p => `
-    <tr>
+    <tr class="baris-akun">
       <td>${esc(p.nama)}</td>
       <td>${esc(p.kelas || "-")}</td>
       <td>${p.role === "admin" ? "Admin" : "Guru Kelas"}</td>
       <td><span class="badge-status ${p.aktif ? "badge-lunas" : "badge-belum"}">${p.aktif ? "Aktif" : "Nonaktif"}</span></td>
       <td style="white-space:nowrap;">
         ${p.role === "admin" ? "" : `
-          <button class="link-btn" data-action="toggle" data-id="${p.id}" data-aktif="${p.aktif}">${p.aktif ? "Nonaktifkan" : "Aktifkan"}</button>
+          <button class="link-btn" data-action="toggle" data-id="${esc(p.id)}" data-aktif="${p.aktif}">${p.aktif ? "Nonaktifkan" : "Aktifkan"}</button>
           &nbsp;·&nbsp;
           <button class="link-btn" data-action="reset" data-email="${esc(p.email)}" data-nama="${esc(p.nama)}">Reset Password</button>
         `}
       </td>
+    </tr>
+    <tr class="baris-email">
+      <td colspan="5">✉️ <span class="email-akun">${esc(p.email || "email belum tercatat")}</span></td>
     </tr>`).join("");
 
   tbody.querySelectorAll('button[data-action="toggle"]').forEach(btn => {
@@ -168,7 +172,7 @@ async function muatDaftarAkun() {
       btn.textContent = "Mengirim...";
       try {
         const { error } = await window.db.auth.resetPasswordForEmail(btn.dataset.email, {
-          redirectTo: `${window.location.origin}/reset-password.html`
+          redirectTo: new URL("reset-password.html", window.location.href).href
         });
         if (error) throw error;
         alert("Link reset password sudah dikirim ke " + btn.dataset.email + ". Minta guru tersebut membuka email dan mengikuti link-nya.");
@@ -231,10 +235,7 @@ async function initInfoSekolah() {
 }
 
 // ---------- Cadangan Data: gabungkan beberapa tabel jadi satu file CSV ----------
-function csvSelPengaturan(v) {
-  const s = String(v === null || v === undefined ? "" : v);
-  return /[";\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
+function csvSelPengaturan(v) { return csvAman(v); }
 
 async function unduhCadanganData() {
   const msgBox = document.getElementById("backupMsg");

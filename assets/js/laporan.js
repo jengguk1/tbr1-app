@@ -280,10 +280,7 @@ function renderLaporan() {
 }
 
 // ---------- Unduh CSV (bisa dibuka di Excel) ----------
-function csvCell(v) {
-  const s = String(v === null || v === undefined ? "" : v);
-  return /[";\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
+function csvCell(v) { return csvAman(v); }
 
 function unduhCsv() {
   const t = lapTerakhir;
